@@ -28,6 +28,7 @@ func (s *service) CreateProduct(request models.Product) (models.Product, error) 
 		return product, InternalServerError
 	}
 	return product, err
+
 }
 
 func (s *service) UpdateProduct(request models.Product) (models.Product, error) {

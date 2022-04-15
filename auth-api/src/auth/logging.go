@@ -1,4 +1,4 @@
-package src
+package auth
 
 import (
 	"github.com/go-kit/kit/log"

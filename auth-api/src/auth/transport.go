@@ -1,9 +1,9 @@
-package src
+package auth
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/mukhametkaly/Diploma/auth-api/models"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 	"net/http"
 	"strings"
 
@@ -36,7 +36,7 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	auth := kithttp.NewServer(
 		makeAuthEndpoint(ss),
 		decodeAuthRequest,
-		encodeResponse,
+		encodeAuthResponse,
 		opts...,
 	)
 
@@ -52,8 +52,7 @@ func decodeRegistrateUserRequest(_ context.Context, r *http.Request) (interface{
 	var body models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newErrorString(http.StatusBadRequest, "cannot unmarshal request")
 	}
 	return body, nil
 }
@@ -62,21 +61,16 @@ func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error)
 	var body models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newErrorString(http.StatusBadRequest, "cannot unmarshal request")
 	}
 	return body, nil
 }
 
 func decodeAuthRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	BearerToken := r.Header.Get("Authorization")
-	if token == "" {
-		return fjkasdjfkasjk
-	}
-
 	tokenString := strings.TrimPrefix(BearerToken, "Bearer ")
 	if tokenString == "" {
-		return jasdkfjaskdfjk
+		return nil, newErrorString(http.StatusUnauthorized, "unauthorized")
 	}
 	return tokenString, nil
 }
@@ -88,6 +82,16 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
+}
+
+func encodeAuthResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	if e, ok := response.(errorer); ok && e.error() != nil {
+		encodeError(ctx, e.error(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Authorization", "Bearer "+response.(string))
+	return nil
 }
 
 type errorer interface {

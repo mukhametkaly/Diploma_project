@@ -1,4 +1,4 @@
-package src
+package auth
 
 import (
 	"context"
@@ -20,14 +20,14 @@ type argError struct {
 }
 
 func newError(statusCode int, err error) *argError {
-	return argError{
+	return &argError{
 		Status:  statusCode,
 		Message: err.Error(),
 	}
 }
 
 func newErrorString(statusCode int, errorString string) *argError {
-	return argError{
+	return &argError{
 		Status:  statusCode,
 		Message: errorString,
 	}

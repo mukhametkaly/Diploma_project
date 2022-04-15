@@ -1,11 +1,11 @@
-package src
+package auth
 
 import (
 	"context"
 	"fmt"
 	"github.com/go-pg/pg/v10"
-	"github.com/mukhametkaly/Diploma/auth-api/config"
-	"github.com/mukhametkaly/Diploma/auth-api/models"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/config"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -52,15 +52,16 @@ type Repository struct {
 }
 
 type UserDTO struct {
-	tableName  struct{} `pg:"user"`
+	tableName  struct{} `pg:"users"`
 	Username   string   `pg:",pk,unique"`
 	Password   string
 	FullName   string
 	IIN        string
 	Mail       string
+	Mobile     string
 	Salt       string
-	Role       string
-	MerchantId string
+	UserRole   string
+	MerchantId string `pg:"merchant_id"`
 }
 
 func (d *UserDTO) fromDTO() models.User {
@@ -70,51 +71,58 @@ func (d *UserDTO) fromDTO() models.User {
 	user.FullName = d.FullName
 	user.Username = d.Username
 	user.Password = d.Password
+	user.Mobile = d.Mobile
 	user.Salt = d.Salt
-	user.Role = d.Role
+	user.Role = d.UserRole
 	user.MerchantId = d.MerchantId
 	return user
 }
 
-func (d *UserDTO) toDTO(product models.User) {
-	d.Username = product.Username
-	d.Password = product.Password
-	d.FullName = product.FullName
-	d.IIN = product.IIN
-	d.Mail = product.Mail
-	d.Salt = product.Salt
-	d.MerchantId = product.MerchantId
-	d.Role = product.Role
+func (d *UserDTO) toDTO(user models.User) {
+	d.Username = user.Username
+	d.Password = user.Password
+	d.FullName = user.FullName
+	d.IIN = user.IIN
+	d.Mail = user.Mail
+	d.Mobile = user.Mobile
+	d.Salt = user.Salt
+	d.MerchantId = user.MerchantId
+	d.UserRole = user.Role
 }
 
 func GetUser(ctx context.Context, username string) (user models.User, err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetProductById", err.Error())
+		Loger.Debugln("error getSession in GetUser", err.Error())
 		return
 	}
+
+	userDto := UserDTO{}
 
 	//todo where username and password
-	q := conn.ModelContext(ctx, &user).Where("username = ?", username)
+	q := conn.ModelContext(ctx, &userDto).Where("username = ?", username)
 	err = q.Select()
 	if err != nil {
-		Loger.Debugln("error select in get list orders", err.Error())
+		Loger.Debugln("error select in get list users", err.Error())
 		return
 	}
 
-	return
+	return userDto.fromDTO(), nil
 }
 
 func RegistrateUser(ctx context.Context, user models.User) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetProductById", err.Error())
+		Loger.Debugln("error getSession in RegistrateUser", err.Error())
 		return
 	}
 
-	_, err = conn.ModelContext(ctx, &user).Insert(&user)
+	userDto := UserDTO{}
+	userDto.toDTO(user)
+
+	_, err = conn.ModelContext(ctx, &userDto).Returning("*", &userDto).Insert()
 	if err != nil {
-		Loger.Debugln("error select in get list orders", err.Error())
+		Loger.Debugln("error insert", err.Error())
 		return
 	}
 
@@ -124,7 +132,7 @@ func RegistrateUser(ctx context.Context, user models.User) (err error) {
 func GetUserByMerchant(ctx context.Context, merchantId string) (count int, err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetProductById", err.Error())
+		Loger.Debugln("error getSession in GetUserByMerchant", err.Error())
 		return
 	}
 

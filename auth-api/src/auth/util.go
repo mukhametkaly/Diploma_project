@@ -1,4 +1,4 @@
-package src
+package auth
 
 import (
 	"math/rand"

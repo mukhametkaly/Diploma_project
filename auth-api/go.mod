@@ -1,4 +1,4 @@
-module github.com/mukhametkaly/Diploma/auth-api
+module github.com/mukhametkaly/Diploma_project/auth-api
 
 go 1.15
 

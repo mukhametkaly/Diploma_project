@@ -1,9 +1,9 @@
-package src
+package auth
 
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/mukhametkaly/Diploma/auth-api/models"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 )
 
 func makeAuthEndpoint(s Service) endpoint.Endpoint {

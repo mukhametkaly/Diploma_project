@@ -1,6 +1,6 @@
-package src
+package auth
 
-import "github.com/mukhametkaly/Diploma/auth-api/models"
+import "github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 
 var (
 	AdminRights = models.Rights{

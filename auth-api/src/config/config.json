@@ -1,0 +1,11 @@
+{
+  "postgres": {
+    "user": "postgres",
+    "password": "postgres",
+    "host": "127.0.0.1",
+    "port": "5432",
+    "dbname": "postgres"
+  },
+  "sign_key": "@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2r5u8x/A?D(G+KbPeShVmYq3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C*F-JaNdRgUkXp2s5v8y/B?D(G+KbPeShVmYq3t6w9z",
+  "logrus_level":5
+}

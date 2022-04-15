@@ -1,10 +1,10 @@
-package src
+package auth
 
 import (
 	"context"
 	"github.com/go-pg/pg/v10"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/mukhametkaly/Diploma/auth-api/models"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -46,7 +46,7 @@ func (s service) Registration(user models.User) error {
 		return newErrorString(http.StatusBadRequest, "no merchant id")
 	}
 
-	user, err := GetUser(context.Background(), user.Username)
+	_, err := GetUser(context.Background(), user.Username)
 	if err != pg.ErrNoRows {
 		return newErrorString(http.StatusConflict, "user with this username exists")
 	}
@@ -65,7 +65,7 @@ func (s service) Registration(user models.User) error {
 
 	err = RegistrateUser(context.Background(), user)
 	if err != nil {
-		panic(err)
+		return newError(http.StatusInternalServerError, err)
 	}
 
 	return nil
@@ -83,15 +83,10 @@ func (s service) LogIn(username, password string) (string, error) {
 
 	user, err := GetUser(context.Background(), username)
 	if err != nil {
-		return "", err
+		return "", newError(http.StatusNotFound, err)
 	}
 
-	reqHash, err := bcrypt.GenerateFromPassword([]byte(password+"@"+user.Salt), 14)
-	if err != nil {
-		return "", newErrorString(http.StatusInternalServerError, "something went wrong")
-	}
-
-	err = bcrypt.CompareHashAndPassword(reqHash, []byte(user.Password+"@"+user.Salt))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password+"@"+user.Salt))
 	if err != nil {
 		return "", newErrorString(http.StatusBadRequest, "wrong password")
 	}

@@ -1,9 +1,9 @@
-package src
+package auth
 
 import (
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/mukhametkaly/Diploma/auth-api/config"
-	"github.com/mukhametkaly/Diploma/auth-api/models"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/config"
+	"github.com/mukhametkaly/Diploma_project/auth-api/src/models"
 	"time"
 )
 
@@ -25,7 +25,7 @@ func newToken(user models.User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(config.AllConfigs.SignKey)
+	return token.SignedString([]byte(config.AllConfigs.SignKey))
 
 }
 

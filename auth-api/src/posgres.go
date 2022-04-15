@@ -55,28 +55,36 @@ type UserDTO struct {
 	tableName  struct{} `pg:"user"`
 	Username   string   `pg:",pk,unique"`
 	Password   string
+	FullName   string
+	IIN        string
+	Mail       string
 	Salt       string
 	Role       string
 	MerchantId string
 }
 
-func (d *UserDTO) fromDTO() (models.User, error) {
-	var product models.User
-	product.UserName = d.Username
-	product.Password = d.Password
-	product.Salt = d.Salt
-	product.Role = d.Role
-	product.MerchantId = d.MerchantId
-	return product, nil
+func (d *UserDTO) fromDTO() models.User {
+	var user models.User
+	user.IIN = d.IIN
+	user.Mail = d.Mail
+	user.FullName = d.FullName
+	user.Username = d.Username
+	user.Password = d.Password
+	user.Salt = d.Salt
+	user.Role = d.Role
+	user.MerchantId = d.MerchantId
+	return user
 }
 
-func (d *UserDTO) toDTO(product models.User) error {
-	d.Username = product.UserName
+func (d *UserDTO) toDTO(product models.User) {
+	d.Username = product.Username
 	d.Password = product.Password
+	d.FullName = product.FullName
+	d.IIN = product.IIN
+	d.Mail = product.Mail
 	d.Salt = product.Salt
 	d.MerchantId = product.MerchantId
 	d.Role = product.Role
-	return nil
 }
 
 func GetUser(ctx context.Context, username string) (user models.User, err error) {
@@ -111,4 +119,24 @@ func RegistrateUser(ctx context.Context, user models.User) (err error) {
 	}
 
 	return
+}
+
+func GetUserByMerchant(ctx context.Context, merchantId string) (count int, err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetProductById", err.Error())
+		return
+	}
+
+	userDto := UserDTO{}
+
+	//todo where username and password
+	count, err = conn.ModelContext(ctx, &userDto).Where("merchant_id = ?", merchantId).Count()
+	if err != nil {
+		Loger.Debugln("error count in get list users", err.Error())
+		return
+	}
+
+	return
+
 }

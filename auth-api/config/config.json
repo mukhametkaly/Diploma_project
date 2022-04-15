@@ -6,5 +6,6 @@
     "port": "5432",
     "dbname": "diploma"
   },
+  "sign_key": "",
   "logrus_level":5
 }

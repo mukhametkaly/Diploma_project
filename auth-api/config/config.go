@@ -10,6 +10,7 @@ import (
 type Configs struct {
 	LogrusLevel uint8          `json:"logrus_level"`
 	Postgres    PostgresConfig `json:"postgres"`
+	SignKey     string         `json:"sign_key"`
 }
 
 type PostgresConfig struct {

@@ -2,10 +2,11 @@ package src
 
 import (
 	"context"
-	"errors"
+	"github.com/go-pg/pg/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mukhametkaly/Diploma/auth-api/models"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 const (
@@ -25,7 +26,7 @@ func NewService() Service {
 type Service interface {
 	LogIn(username, password string) (string, error)
 	Registration(user models.User) error
-	Auth(token string) (models.Rights, error)
+	Auth(token string) (bool, error)
 }
 
 type aclClaim struct {
@@ -36,21 +37,25 @@ type aclClaim struct {
 func (s service) Registration(user models.User) error {
 
 	if user.Username == "" {
-		return nil
+		return newErrorString(http.StatusBadRequest, "no user name")
 	}
 	if user.Password == "" || len(user.Password) < 8 {
-		return nil
+		return newErrorString(http.StatusBadRequest, "no password")
 	}
 	if user.MerchantId == "" {
-		return nil
-	}
-	if user.Role == Admin || user.Role == Merchant || user.Role == Cashier {
-		return nil
+		return newErrorString(http.StatusBadRequest, "no merchant id")
 	}
 
 	user, err := GetUser(context.Background(), user.Username)
-	if err == nil && user.Password != "" {
-		panic(err)
+	if err != pg.ErrNoRows {
+		return newErrorString(http.StatusConflict, "user with this username exists")
+	}
+
+	count, err := GetUserByMerchant(context.TODO(), user.MerchantId)
+	if count != 0 {
+		user.Role = Cashier
+	} else {
+		user.Role = Merchant
 	}
 
 	user.Salt = RandStringRunes(8)
@@ -68,24 +73,35 @@ func (s service) Registration(user models.User) error {
 
 func (s service) LogIn(username, password string) (string, error) {
 
+	if username == "" {
+		return "", newErrorString(http.StatusBadRequest, "no username")
+	}
+
+	if password == "" {
+		return "", newErrorString(http.StatusBadRequest, "no password")
+	}
+
 	user, err := GetUser(context.Background(), username)
 	if err != nil {
 		return "", err
 	}
 
 	reqHash, err := bcrypt.GenerateFromPassword([]byte(password+"@"+user.Salt), 14)
+	if err != nil {
+		return "", newErrorString(http.StatusInternalServerError, "something went wrong")
+	}
 
 	err = bcrypt.CompareHashAndPassword(reqHash, []byte(user.Password+"@"+user.Salt))
 	if err != nil {
-		return "", err
+		return "", newErrorString(http.StatusBadRequest, "wrong password")
 	}
 
 	if user.Role == "" {
-		return "", err
+		return "", newErrorString(http.StatusInternalServerError, "no role user"+user.Username)
 	}
 
-	if user.MerchantId == "" {
-		return "", err
+	if user.MerchantId == "" && user.Role != Admin {
+		return "", newErrorString(http.StatusInternalServerError, "no merchantId"+user.Username)
 	}
 
 	acl := make(map[string]models.Rights)
@@ -97,25 +113,23 @@ func (s service) LogIn(username, password string) (string, error) {
 	case Cashier:
 		acl[user.MerchantId] = CashierRights
 	default:
-		return dfs, ""
+		return "", newErrorString(http.StatusInternalServerError, "undefined role "+user.Role+" user "+user.Username)
 	}
 
-	return "", nil
+	token, err := newToken(user)
+	if err != nil {
+		return "", newErrorString(http.StatusInternalServerError, "something went wrong")
+	}
+
+	return token, nil
 }
 
-func (s service) Auth(token string) (models.Rights, error) {
+func (s service) Auth(token string) (bool, error) {
 
-	tk, err := jwt.ParseWithClaims(token, &aclClaim{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("AllYourBase"), nil
-	})
-	if err != nil {
-		return models.Rights{}, errors.New("internal error")
+	user := getAcl(token)
+	if user.Username == "" {
+		return false, newErrorString(http.StatusUnauthorized, "invalid token")
 	}
-
-	if claim, ok := tk.Claims.(*aclClaim); ok && tk.Valid {
-		return claim.Rights, nil
-	} else {
-		return models.Rights{}, errors.New("unauthorized")
-	}
+	return true, nil
 
 }

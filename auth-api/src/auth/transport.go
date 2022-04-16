@@ -29,21 +29,21 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	loginUser := kithttp.NewServer(
 		makeLoginEndpoint(ss),
 		decodeLoginRequest,
-		encodeResponse,
+		encodeLoginResponse,
 		opts...,
 	)
 
 	auth := kithttp.NewServer(
 		makeAuthEndpoint(ss),
 		decodeAuthRequest,
-		encodeAuthResponse,
+		encodeResponse,
 		opts...,
 	)
 
 	r := mux.NewRouter()
 	r.Handle("/v1/auth/registration", registrationUser).Methods("POST")
 	r.Handle("/v1/auth/login", loginUser).Methods("POST")
-	r.Handle("/v1/auth", auth).Methods("POST")
+	r.Handle("/v1/auth/validation", auth).Methods("POST")
 
 	return r
 }
@@ -84,7 +84,7 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	return json.NewEncoder(w).Encode(response)
 }
 
-func encodeAuthResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeLoginResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(errorer); ok && e.error() != nil {
 		encodeError(ctx, e.error(), w)
 		return nil

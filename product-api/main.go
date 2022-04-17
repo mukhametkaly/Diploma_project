@@ -19,7 +19,7 @@ import (
 var productService product.Service
 
 func main() {
-	httpAddr := flag.String("http.addr", ":8081", "HTTP listen address only port :8080")
+	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
 	flag.Parse()
 
 	var logger log.Logger

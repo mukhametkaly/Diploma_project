@@ -1,10 +1,11 @@
-#FROM alpine:3.9
-#ADD fortekassa-shopping-cart-api fortekassa-shopping-cart-api
-#ADD src/config src/config
-#ENTRYPOINT ["/fortekassa-shopping-cart-api"]
+FROM golang:1.15-alpine
 
-FROM alpine:3
-ADD src/config src/config
-ADD target/app /go/bin/app
-ENTRYPOINT ["/go/bin/app"]
-CMD ["/go/bin/app"]
+RUN mkdir $HOME/goproject
+
+WORKDIR $HOME/goproject
+
+COPY . $HOME/goproject
+
+
+EXPOSE 8080
+CMD ["go", "run", "main.go"]

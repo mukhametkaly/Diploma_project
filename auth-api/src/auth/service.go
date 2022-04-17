@@ -26,8 +26,7 @@ func NewService() Service {
 type Service interface {
 	LogIn(username, password string) (string, error)
 	Registration(user models.User) error
-	Auth(token string) (bool, error)
-	GetUser(token string) (models.User, error)
+	Auth(token string) (models.User, error)
 }
 
 type aclClaim struct {
@@ -108,20 +107,12 @@ func (s service) LogIn(username, password string) (string, error) {
 	return token, nil
 }
 
-func (s service) Auth(token string) (bool, error) {
+func (s service) Auth(token string) (models.User, error) {
 
-	user := getAcl(token)
-	if user.Username == "" {
-		return false, newErrorString(http.StatusUnauthorized, "invalid token")
-	}
-	return true, nil
-
-}
-
-func (s service) GetUser(token string) (models.User, error) {
 	user := getAcl(token)
 	if user.Username == "" {
 		return models.User{}, newErrorString(http.StatusUnauthorized, "invalid token")
 	}
 	return user, nil
+
 }

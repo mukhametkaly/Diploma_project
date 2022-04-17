@@ -20,7 +20,7 @@ import (
 var authService auth.Service
 
 func main() {
-	httpAddr := flag.String("http.addr", ":8082", "HTTP listen address only port :8080")
+	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
 	flag.Parse()
 
 	var logger log.Logger
@@ -67,12 +67,12 @@ func main() {
 		if err != nil {
 			panic(fmt.Errorf("Fatal error connect Rabbit: %s \n", err))
 		}
-		if err := (*srv).Endpoint("request.transfers.#", func(message amqp.Message) *amqp.Message {
+		if err := (*srv).Endpoint("request.auth.#", func(message amqp.Message) *amqp.Message {
 			return auth.MakeAuthServiceRabbitMQ(authService, message)
 		}); err != nil {
 			fmt.Println("err = ", err)
 		}
-		logr.Debug("transfer in transfer-api transfer RabbitMQ server started")
+		logr.Debug("auth in auth-api auth RabbitMQ server started")
 		errs <- (*srv).Start()
 	}()
 

@@ -79,4 +79,9 @@ func makeFilterProductEndpoint(s Service) endpoint.Endpoint {
 }
 
 type FilterProductsRequest struct {
+	MerchantId string `json:"merchant_id"`
+	Barcode    string `json:"barcode"`
+	Name       string `json:"name"`
+	From       int    `json:"from"`
+	Size       int    `json:"size"`
 }

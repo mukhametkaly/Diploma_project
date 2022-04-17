@@ -28,22 +28,21 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 }
 
 type argError struct {
-	Status           int    `json:"status"`
-	Message          string `json:"message"`
-	DeveloperMessage string `json:"developerMessage"`
+	Status  int    `json:"status"`
+	Message string `json:"message"`
 }
 
 var (
-	InternalServerError = &argError{}
-	PostgresReadError   = &argError{409, "Ошибка считывания", "Недоступена база"}
-	DeserializeBug      = &argError{415, "Ошибка сериализации", "Ошибка сериализации поискового движка"}
-	NoContentFound      = &argError{204, "Ничего не найдено", "Ничего не найдено"}
-	InvalidCharacter    = &argError{400, "Неправильные входные данные", "Неправильный JSON"}
-	AccessDenied        = &argError{403, "Доступ к ресурсу запрещен", "Доступ к ресурсу или отдельной его части запрещен"}
-	Conflict            = &argError{409, "Конфликт обращения к ресурсу", "Запрос не может быть выполнен из-за конфликтного обращения к ресурсу"}
-	Unauthorized        = &argError{401, "Невалидный авторизационный токен", "Запрос не может быть выполнен из-за конфликтного обращения к ресурсу"}
+	InternalServerError = &argError{500, "something went wrong"}
+	PostgresReadError   = &argError{409, "Ошибка считывания"}
+	DeserializeBug      = &argError{415, "Ошибка сериализации"}
+	NoContentFound      = &argError{204, "Ничего не найдено"}
+	InvalidCharacter    = &argError{400, "Неправильные входные данные"}
+	AccessDenied        = &argError{403, "Доступ к ресурсу запрещен"}
+	Conflict            = &argError{409, "Конфликт обращения к ресурсу"}
+	Unauthorized        = &argError{401, "Невалидный авторизационный токен"}
 )
 
 func (e *argError) Error() string {
-	return fmt.Sprintf("%s %s", e.DeveloperMessage, e.Message)
+	return fmt.Sprintf("%s", e.Message)
 }

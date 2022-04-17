@@ -57,7 +57,7 @@ type ProductDTO struct {
 	Barcode       string
 	Name          string
 	CategoryId    int64
-	MerchantId    int64
+	MerchantId    string
 	StockId       int64
 	PurchasePrice float64
 	SellingPrice  float64
@@ -100,12 +100,16 @@ func GetProductById(ctx context.Context, id int64) (product models.Product, err 
 		return
 	}
 
-	q := conn.ModelContext(ctx, &product).Where("id = ?", id)
+	productDto := ProductDTO{}
+
+	q := conn.ModelContext(ctx, &productDto).Where("id = ?", id)
 	err = q.Select()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
 	}
+
+	product = productDto.fromDTO()
 
 	return
 }
@@ -138,9 +142,14 @@ func UpdateProduct(ctx context.Context, product models.Product) (err error) {
 		return
 	}
 
-	_, err = conn.ModelContext(ctx, &product).WherePK().Update(product)
+	productDto := ProductDTO{}
+	productDto.toDTO(product)
+
+	//_, err = conn.ModelContext(ctx, &product).WherePK().Update(product)
+
+	_, err = conn.ModelContext(ctx, &product).WherePK().Column("purchase_price", "selling_price", "amount", "category_id", "name").Update()
 	if err != nil {
-		Loger.Debugln("error select in get list orders", err.Error())
+		Loger.Debugln("error UpdateProduct", err.Error())
 		return
 	}
 
@@ -150,11 +159,11 @@ func UpdateProduct(ctx context.Context, product models.Product) (err error) {
 func DeleteProductById(ctx context.Context, id int64) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetProductById", err.Error())
+		Loger.Debugln("error DeleteProductById", err.Error())
 		return
 	}
 
-	_, err = conn.Model((*models.Product)(nil)).Where("id = ?", id).Delete()
+	_, err = conn.ModelContext(ctx, (*models.Product)(nil)).Where("id = ?", id).Delete()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -166,15 +175,66 @@ func DeleteProductById(ctx context.Context, id int64) (err error) {
 func MDeleteProductByIds(ctx context.Context, ids []int64) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetProductById", err.Error())
+		Loger.Debugln("error getSession in MDeleteProductByIds", err.Error())
 		return
 	}
 
-	_, err = conn.Model((*models.Product)(nil)).Where("id IN (?)", pg.In(ids)).Delete()
+	_, err = conn.ModelContext(ctx, (*models.Product)(nil)).Where("id IN (?)", pg.In(ids)).Delete()
 	if err != nil {
-		Loger.Debugln("error select in get list orders", err.Error())
+		Loger.Debugln("error MDeleteProductByIds", err.Error())
 		return
 	}
 
 	return
+}
+
+func FilterProducts(ctx context.Context, req FilterProductsRequest) ([]models.Product, error) {
+
+	conn, err := GetPGSession()
+	if err != nil {
+		return nil, err
+	}
+
+	productDtos := []ProductDTO{}
+
+	query := conn.ModelContext(ctx, &productDtos).Where("merchant_id = ?", req.MerchantId)
+	if req.Barcode != "" {
+		query.Where("barcode LIKE ?", req.Barcode+"%")
+	}
+
+	if req.Name != "" {
+		query.Where("name LIKE ?", req.Name+"%")
+	}
+
+	if req.Size == 0 {
+		req.Size = 10
+	}
+
+	err = query.Limit(req.Size).Offset(req.From).Select()
+
+	if err != nil && err != pg.ErrNoRows {
+		return nil, err
+	}
+
+	products := make([]models.Product, 0, len(productDtos))
+
+	for _, productDto := range productDtos {
+		products = append(products, productDto.fromDTO())
+	}
+
+	return products, nil
+
+}
+
+func CheckBarcode(ctx context.Context, merchantId, barcode string) (bool, error) {
+
+	conn, err := GetPGSession()
+	if err != nil {
+		return false, err
+	}
+
+	productDtos := []ProductDTO{}
+
+	return conn.ModelContext(ctx, &productDtos).Where("merchant_id = ?", merchantId).Where("barcode = ?", barcode).Exists()
+
 }

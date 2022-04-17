@@ -23,6 +23,39 @@ func NewService() Service {
 }
 
 func (s *service) CreateProduct(request models.Product) (models.Product, error) {
+	if request.MerchantId == "" {
+		InvalidCharacter.Message = "no merchant id"
+		return models.Product{}, InvalidCharacter
+	}
+	if request.CategoryId == 0 {
+		InvalidCharacter.Message = "no category id"
+		return models.Product{}, InvalidCharacter
+	}
+	if request.Name == "" {
+		InvalidCharacter.Message = "no product name"
+		return models.Product{}, InvalidCharacter
+	}
+	if request.Barcode == "" {
+		InvalidCharacter.Message = "no product barcode"
+		return models.Product{}, InvalidCharacter
+	}
+
+	if request.UnitType != "piece" && request.UnitType != "weight" {
+		request.UnitType = "piece"
+	}
+
+	barcodeExists, err := CheckBarcode(context.Background(), request.MerchantId, request.Barcode)
+	if err != nil {
+		Loger.Debugf("%v", err.Error())
+		InternalServerError.Message = err.Error()
+		return models.Product{}, err
+	}
+
+	if barcodeExists {
+		InvalidCharacter.Message = "product with same barcode exist"
+		return models.Product{}, InvalidCharacter
+	}
+
 	product, err := InsertProduct(context.Background(), request)
 	if err != nil {
 		return product, InternalServerError
@@ -32,13 +65,18 @@ func (s *service) CreateProduct(request models.Product) (models.Product, error) 
 }
 
 func (s *service) UpdateProduct(request models.Product) (models.Product, error) {
-	var products models.Product
+	var product models.Product
+
+	if request.CategoryId == 0 {
+		InvalidCharacter.Message = "no category id"
+		return models.Product{}, InvalidCharacter
+	}
 
 	err := UpdateProduct(context.Background(), request)
 	if err != nil {
-		return products, InternalServerError
+		return product, InternalServerError
 	}
-	return request, err
+	return request, nil
 }
 
 func (s *service) DeleteByIdProduct(id int64) error {
@@ -67,5 +105,14 @@ func (s *service) GetProductById(id int64) (models.Product, error) {
 }
 
 func (s *service) FilterProducts(request FilterProductsRequest) ([]models.Product, error) {
-	return []models.Product{}, nil
+	if request.MerchantId == "" {
+		return nil, InvalidCharacter
+	}
+
+	products, err := FilterProducts(context.TODO(), request)
+	if err != nil {
+		return nil, Conflict
+	}
+
+	return products, nil
 }

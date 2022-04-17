@@ -76,7 +76,6 @@ func decodeCreateProductRequest(_ context.Context, r *http.Request) (interface{}
 	var body models.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
 		return nil, InvalidCharacter
 	}
 	return body, nil
@@ -96,7 +95,6 @@ func decodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 
 	var body models.Product
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
 		return nil, InvalidCharacter
 	}
 
@@ -139,7 +137,6 @@ func decodeDeleteBatchProductRequest(_ context.Context, r *http.Request) (interf
 
 	var body []int64
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
 		return nil, InvalidCharacter
 	}
 
@@ -150,7 +147,6 @@ func decodeFilterProductSync(_ context.Context, r *http.Request) (interface{}, e
 	var body FilterProductsRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
 		return nil, InvalidCharacter
 	}
 	return body, nil

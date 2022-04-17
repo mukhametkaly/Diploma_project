@@ -9,7 +9,6 @@ type User struct {
 	Mobile     string `json:"mobile"`
 	Salt       string `json:"salt"`
 	Role       string `json:"role"`
-	ACL        ACL    `json:"acl"`
 	MerchantId string `json:"merchant_id"`
 }
 

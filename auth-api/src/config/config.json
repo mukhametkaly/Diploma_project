@@ -6,6 +6,14 @@
     "port": "5432",
     "dbname": "postgres"
   },
+  "rabbit": {
+    "host": "10.252.16.116",
+    "virtual_host": "dev-onetech",
+    "port": 5672,
+    "user": "dev-onetech",
+    "password": "IshaiS9i",
+    "log_level": 5
+  },
   "sign_key": "@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2r5u8x/A?D(G+KbPeShVmYq3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C*F-JaNdRgUkXp2s5v8y/B?D(G+KbPeShVmYq3t6w9z",
   "logrus_level":5
 }

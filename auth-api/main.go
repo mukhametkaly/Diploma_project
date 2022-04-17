@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/djumanoff/amqp"
 	"github.com/mukhametkaly/Diploma_project/auth-api/src/auth"
 	"github.com/mukhametkaly/Diploma_project/auth-api/src/config"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 var authService auth.Service
 
 func main() {
-	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
+	httpAddr := flag.String("http.addr", ":8082", "HTTP listen address only port :8080")
 	flag.Parse()
 
 	var logger log.Logger
@@ -59,6 +60,20 @@ func main() {
 		c := make(chan os.Signal)
 		signal.Notify(c, syscall.SIGINT)
 		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	go func() {
+		srv, err := auth.Server()
+		if err != nil {
+			panic(fmt.Errorf("Fatal error connect Rabbit: %s \n", err))
+		}
+		if err := (*srv).Endpoint("request.transfers.#", func(message amqp.Message) *amqp.Message {
+			return auth.MakeAuthServiceRabbitMQ(authService, message)
+		}); err != nil {
+			fmt.Println("err = ", err)
+		}
+		logr.Debug("transfer in transfer-api transfer RabbitMQ server started")
+		errs <- (*srv).Start()
 	}()
 
 	logger.Log("terminated", <-errs)

@@ -27,6 +27,7 @@ type Service interface {
 	LogIn(username, password string) (string, error)
 	Registration(user models.User) error
 	Auth(token string) (bool, error)
+	GetUser(token string) (models.User, error)
 }
 
 type aclClaim struct {
@@ -99,18 +100,6 @@ func (s service) LogIn(username, password string) (string, error) {
 		return "", newErrorString(http.StatusInternalServerError, "no merchantId"+user.Username)
 	}
 
-	acl := make(map[string]models.Rights)
-	switch user.Role {
-	case Admin:
-		acl[Admin] = AdminRights
-	case Merchant:
-		acl[user.MerchantId] = MerchantRights
-	case Cashier:
-		acl[user.MerchantId] = CashierRights
-	default:
-		return "", newErrorString(http.StatusInternalServerError, "undefined role "+user.Role+" user "+user.Username)
-	}
-
 	token, err := newToken(user)
 	if err != nil {
 		return "", newErrorString(http.StatusInternalServerError, "something went wrong")
@@ -127,4 +116,12 @@ func (s service) Auth(token string) (bool, error) {
 	}
 	return true, nil
 
+}
+
+func (s service) GetUser(token string) (models.User, error) {
+	user := getAcl(token)
+	if user.Username == "" {
+		return models.User{}, newErrorString(http.StatusUnauthorized, "invalid token")
+	}
+	return user, nil
 }

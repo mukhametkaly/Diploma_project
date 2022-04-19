@@ -55,7 +55,7 @@ type ShortWaybillDTO struct {
 	tableName      struct{} `pg:"short_waybill"`
 	Id             int64    `pg:",pk,unique"`
 	DocumentNumber string
-	MerchantId     int64
+	MerchantId     string
 	StockId        int64
 	TotalSum       float64
 	CreatedOn      time.Time
@@ -64,7 +64,7 @@ type ShortWaybillDTO struct {
 	Status         string
 }
 
-func (d *ShortWaybillDTO) fromDTO() (models.ShortWaybill, error) {
+func (d *ShortWaybillDTO) fromDTO() models.ShortWaybill {
 	var waybill models.ShortWaybill
 	waybill.ID = d.Id
 	waybill.DocumentNumber = d.DocumentNumber
@@ -75,7 +75,6 @@ func (d *ShortWaybillDTO) fromDTO() (models.ShortWaybill, error) {
 	waybill.UpdatedOn = d.UpdatedOn
 	waybill.ProvidedTime = d.ProvidedTime
 	waybill.Status = d.Status
-	return waybill, nil
 }
 
 func (d *ShortWaybillDTO) toDTO(waybill models.ShortWaybill) {
@@ -129,26 +128,28 @@ func (d *WaybillProductsDTO) toDTO(product models.WaybillProduct) {
 	d.CreatedOn = product.CreatedOn
 }
 
-func InsertWaybill(ctx context.Context, waybill models.ShortWaybill) (wazybil models.ShortWaybill, err error) {
+func InsertWaybill(ctx context.Context, waybill models.ShortWaybill) (models.ShortWaybill, error) {
 	conn, err := GetPGSession()
 	if err != nil {
 		Loger.Debugln("error getSession in InsertWaybill", err.Error())
-		return
+		return models.ShortWaybill{}, err
 	}
 
 	var dtoWaybill ShortWaybillDTO
 	dtoWaybill.toDTO(waybill)
 
-	_, err = conn.ModelContext(ctx, &dtoWaybill).Insert(&dtoWaybill)
+	_, err = conn.ModelContext(ctx, &dtoWaybill).Returning("*", &dtoWaybill).Insert(&dtoWaybill)
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
-		return
+		return models.ShortWaybill{}, err
 	}
 
-	return
+	waybill = dtoWaybill.fromDTO()
+
+	return waybill, nil
 }
 
-func UpdateWaybill(ctx context.Context, waybill models.ShortWaybill) (err error) {
+func UpdateWaybillStatus(ctx context.Context, waybill models.ShortWaybill) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
 		Loger.Debugln("error getSession in GetProductById", err.Error())
@@ -158,7 +159,27 @@ func UpdateWaybill(ctx context.Context, waybill models.ShortWaybill) (err error)
 	var dtoWaybill ShortWaybillDTO
 	dtoWaybill.toDTO(waybill)
 
-	_, err = conn.ModelContext(ctx, &waybill).WherePK().Update(waybill)
+	_, err = conn.ModelContext(ctx, &waybill).WherePK().Column("updated_on", "provided_time", "status").Update()
+	if err != nil {
+		Loger.Debugln("error select in get list orders", err.Error())
+		return
+	}
+
+	return
+}
+
+func UpdateWaybillSum(ctx context.Context, id int64, sum float64) (err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetProductById", err.Error())
+		return
+	}
+
+	var dtoWaybill ShortWaybillDTO
+	dtoWaybill.UpdatedOn = time.Now()
+	dtoWaybill.Id = id
+
+	_, err = conn.ModelContext(ctx, &dtoWaybill).WherePK().Set("total_sum = total_sum + ?", sum).Column("updated_on").Update()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -183,6 +204,78 @@ func DeleteWaybillById(ctx context.Context, id int64) (err error) {
 	return
 }
 
+func GetWaybill(ctx context.Context, req WaybillsFilterRequest) ([]models.ShortWaybill, error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetWaybill", err.Error())
+		return nil, err
+	}
+
+	waybillDto := []ShortWaybillDTO{}
+
+	query := conn.ModelContext(ctx, &waybillDto).Where("merchant_id = ?", req.MerchantId)
+
+	if req.Status != "" {
+		query.Where("status = ?", req.Status)
+	}
+
+	if req.DocumentNumber != "" {
+		query.Where("document_number = ?", req.DocumentNumber)
+	}
+
+	err = query.Select()
+	if err != nil {
+		Loger.Debugln("error select in get list waybills", err.Error())
+		return nil, err
+	}
+
+	waybills := make([]models.ShortWaybill, 0, len(waybillDto))
+
+	for _, dto := range waybillDto {
+		waybill := dto.fromDTO()
+		waybills = append(waybills, waybill)
+	}
+
+	return waybills, err
+}
+
+func IfDocNumberExist(ctx context.Context, merchantId, docNum string) (bool, error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetWaybill", err.Error())
+		return nil, err
+	}
+
+	waybillDto := []ShortWaybillDTO{}
+
+	return conn.ModelContext(ctx, &waybillDto).
+		Where("merchant_id = ?", merchantId).
+		Where("document_number = ?", docNum).
+		Exists()
+
+}
+
+func GetWaybillById(ctx context.Context, id int64) (models.ShortWaybill, error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetWaybill", err.Error())
+		return models.ShortWaybill{}, err
+	}
+
+	waybillDto := ShortWaybillDTO{}
+	waybillDto.Id = id
+
+	err = conn.ModelContext(ctx, &waybillDto).WherePK().Select()
+	if err != nil {
+		Loger.Debugln("error select in get list waybills", err.Error())
+		return models.ShortWaybill{}, err
+	}
+
+	waybill := waybillDto.fromDTO()
+
+	return waybill, err
+}
+
 func GetWaybillProducts(ctx context.Context, req GetWaybillProductsRequest) (product []models.WaybillProduct, err error) {
 	conn, err := GetPGSession()
 	if err != nil {
@@ -192,8 +285,12 @@ func GetWaybillProducts(ctx context.Context, req GetWaybillProductsRequest) (pro
 
 	DtoProducts := []WaybillProductsDTO{}
 
-	q := conn.ModelContext(ctx, &DtoProducts).Where("waybill_id = ?", req.WaybillId)
-	err = q.Order("created_on ASC").Select()
+	query := conn.ModelContext(ctx, &DtoProducts).Where("waybill_id = ?", req.WaybillId)
+	if req.Barcode != "" {
+		query.Where("barcode = ?", req.Barcode)
+	}
+
+	err = query.Order("created_on ASC").Select()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -202,10 +299,10 @@ func GetWaybillProducts(ctx context.Context, req GetWaybillProductsRequest) (pro
 	return
 }
 
-func DeleteWaybillProductById(ctx context.Context, req DeleteWaybillProductRequest) (err error) {
+func DeleteWaybillProduct(ctx context.Context, req DeleteWaybillProductRequest) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in DeleteWaybillProductById", err.Error())
+		Loger.Debugln("error getSession in DeleteWaybillProduct", err.Error())
 		return
 	}
 
@@ -240,33 +337,21 @@ func InsertWaybillProduct(ctx context.Context, product models.WaybillProduct) (e
 	return
 }
 
-func GetWaybills(ctx context.Context, req WaybillsFilterRequest) ([]models.WaybillProduct, error) {
+func UpdateWaybillProduct(ctx context.Context, product models.WaybillProduct) (err error) {
 	conn, err := GetPGSession()
 	if err != nil {
-		Loger.Debugln("error getSession in GetWaybill", err.Error())
-		return nil, err
+		Loger.Debugln("error getSession in InsertWaybillProduct", err.Error())
+		return
 	}
 
-	dtoProducts := []WaybillProductsDTO{}
+	var dtoProduct WaybillProductsDTO
+	dtoProduct.toDTO(product)
 
-	query := conn.ModelContext(ctx, &dtoProducts).Where("merchant_id = ?", req.MerchantId)
-
-	if req.Status != "" {
-		query.Where("status = ?", req.Status)
-	}
-
-	err = query.Select()
+	_, err = conn.ModelContext(ctx, &dtoProduct).Update("received_amount", "amount", "purchase_price", "selling_price", "total")
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
-		return nil, err
+		return
 	}
 
-	products := make([]models.WaybillProduct, 0, len(dtoProducts))
-
-	for _, dto := range dtoProducts {
-		product := dto.fromDTO()
-		products = append(products, product)
-	}
-
-	return products, err
+	return
 }

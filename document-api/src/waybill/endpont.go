@@ -85,17 +85,17 @@ type DeleteWaybillRequest struct {
 }
 
 type DeleteWaybillProductRequest struct {
-	WaybillId  int64  `json:"waybill_id"`
-	Barcode    string `json:"barcode"`
-	MerchantId string `json:"merchant_id"`
+	WaybillId int64  `json:"waybill_id"`
+	Barcode   string `json:"barcode"`
 }
 
 type GetWaybillProductsRequest struct {
-	WaybillId  int64 `json:"waybill_id"`
-	MerchantId int64 `json:"merchant_id"`
+	WaybillId int64  `json:"waybill_id"`
+	Barcode   string `json:"barcode"`
 }
 
 type WaybillsFilterRequest struct {
-	MerchantId int64  `json:"merchant_id"`
-	Status     string `json:"status"`
+	MerchantId     int64  `json:"merchant_id"`
+	Status         string `json:"status"`
+	DocumentNumber string `json:"document_number"`
 }

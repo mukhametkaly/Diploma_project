@@ -3,7 +3,6 @@ module github.com/mukhametkaly/Diploma/product-api
 go 1.13
 
 require (
-	git.dar.kz/forte-kassa/order-api v1.1.3
 	github.com/djumanoff/amqp v1.0.6
 	github.com/go-kit/kit v0.9.0
 	github.com/go-pg/pg/v10 v10.10.5

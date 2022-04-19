@@ -6,6 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="96424c6d-18e2-4605-8f7f-45486bcd905d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migration/products.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/migration/products.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/documents.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/documents.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/endpont.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/endpont.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/posgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,18 +40,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/home/mamantayev/go/src/github.com/mukhametkaly/Diploma/product-api"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/mamantayev/go/src/github.com/mukhametkaly/Diploma/product-api&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/product" />

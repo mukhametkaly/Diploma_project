@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+const (
+	StatusDraft    = "draft"
+	StatusProvided = "provided"
+)
+
 type ShortInventory struct {
 	ID             int64     `json:"id"`
 	DocumentNumber string    `json:"document_number"`
@@ -27,25 +32,26 @@ type ShortWaybill struct {
 }
 
 type InventoryProduct struct {
-	Barcode        string    `json:"barcode"`
-	Name           string    `json:"name"`
-	ActualAmount   float64   `json:"actual_amount"`
-	ReceivedAmount float64   `json:"received_amount"`
-	InventoryId    int64     `json:"inventory_id"`
-	PurchasePrice  float64   `json:"purchase_price"`
-	SellingPrice   float64   `json:"selling_price"`
-	Total          float64   `json:"total"`
-	CreatedOn      time.Time `json:"created_on"`
-}
-
-type WaybillProduct struct {
 	Barcode       string    `json:"barcode"`
 	Name          string    `json:"name"`
+	ActualAmount  float64   `json:"actual_amount"`
 	AmountBefore  float64   `json:"amount"`
-	AmountAfter   float64   `json:"amount_after"`
-	WaybillId     int64     `json:"waybill_id"`
+	DifAmount     float64   `json:"dif_amount"`
+	InventoryId   int64     `json:"inventory_id"`
 	PurchasePrice float64   `json:"purchase_price"`
 	SellingPrice  float64   `json:"selling_price"`
 	Total         float64   `json:"total"`
 	CreatedOn     time.Time `json:"created_on"`
+}
+
+type WaybillProduct struct {
+	Barcode        string    `json:"barcode"`
+	Name           string    `json:"name"`
+	ReceivedAmount float64   `json:"received_amount"`
+	Amount         float64   `json:"amount"`
+	WaybillId      int64     `json:"waybill_id"`
+	PurchasePrice  float64   `json:"purchase_price"`
+	SellingPrice   float64   `json:"selling_price"`
+	Total          float64   `json:"total"`
+	CreatedOn      time.Time `json:"created_on"`
 }

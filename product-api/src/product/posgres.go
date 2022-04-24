@@ -57,11 +57,13 @@ type ProductDTO struct {
 	Barcode       string
 	Name          string
 	CategoryId    int64
+	CategoryName  string
 	MerchantId    string
 	StockId       int64
 	PurchasePrice float64
 	SellingPrice  float64
 	Amount        float64
+	Margin        float64
 	UnitType      string
 }
 
@@ -71,10 +73,12 @@ func (d *ProductDTO) fromDTO() models.Product {
 	product.Barcode = d.Barcode
 	product.Name = d.Name
 	product.CategoryId = d.CategoryId
+	product.CategoryName = d.CategoryName
 	product.MerchantId = d.MerchantId
 	product.StockId = d.StockId
 	product.PurchasePrice = d.PurchasePrice
 	product.SellingPrice = d.SellingPrice
+	product.Margin = d.Margin
 	product.Amount = d.Amount
 	product.UnitType = d.UnitType
 	return product
@@ -85,10 +89,12 @@ func (d *ProductDTO) toDTO(product models.Product) {
 	d.Barcode = product.Barcode
 	d.Name = product.Name
 	d.CategoryId = product.CategoryId
+	d.CategoryName = product.CategoryName
 	d.MerchantId = product.MerchantId
 	d.StockId = product.StockId
 	d.PurchasePrice = product.PurchasePrice
 	d.SellingPrice = product.SellingPrice
+	d.Margin = product.Margin
 	d.Amount = product.Amount
 	d.UnitType = product.UnitType
 }

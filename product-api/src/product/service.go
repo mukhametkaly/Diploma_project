@@ -27,10 +27,14 @@ func (s *service) CreateProduct(request models.Product) (models.Product, error) 
 		InvalidCharacter.Message = "no merchant id"
 		return models.Product{}, InvalidCharacter
 	}
-	if request.CategoryId == 0 {
-		InvalidCharacter.Message = "no category id"
+	if request.CategoryName == "" {
+		InvalidCharacter.Message = "no category"
 		return models.Product{}, InvalidCharacter
 	}
+	//if request.CategoryId == 0 {
+	//	InvalidCharacter.Message = "no category id"
+	//	return models.Product{}, InvalidCharacter
+	//}
 	if request.Name == "" {
 		InvalidCharacter.Message = "no product name"
 		return models.Product{}, InvalidCharacter
@@ -67,8 +71,12 @@ func (s *service) CreateProduct(request models.Product) (models.Product, error) 
 func (s *service) UpdateProduct(request models.Product) (models.Product, error) {
 	var product models.Product
 
-	if request.CategoryId == 0 {
-		InvalidCharacter.Message = "no category id"
+	//if request.CategoryId == 0 {
+	//	InvalidCharacter.Message = "no category id"
+	//	return models.Product{}, InvalidCharacter
+	//}
+	if request.CategoryName == "" {
+		InvalidCharacter.Message = "no category"
 		return models.Product{}, InvalidCharacter
 	}
 

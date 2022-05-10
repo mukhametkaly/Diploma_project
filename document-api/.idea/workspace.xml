@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="96424c6d-18e2-4605-8f7f-45486bcd905d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/migration/products.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/migration/products.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/documents.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/documents.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/waybill/endpont.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/endpont.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/waybill/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/posgres.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/waybill/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/transport.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/transport.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

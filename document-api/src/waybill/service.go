@@ -13,18 +13,19 @@ import (
 type waybillService struct {
 }
 
-type WaybillService interface {
+type Service interface {
 	CreateWaybill(waybill models.ShortWaybill) (models.ShortWaybill, error)
 	UpdateWaybill(waybill models.ShortWaybill) (models.ShortWaybill, error)
 	DeleteWaybill(request DeleteWaybillRequest) error
+	WaybillsFilter(request WaybillsFilterRequest) ([]models.ShortWaybill, error)
+
+	WaybillAddProduct(product models.WaybillProduct) (models.WaybillProduct, error)
+	WaybillUpdateProduct(product models.WaybillProduct) (models.WaybillProduct, error)
 	DeleteWaybillProduct(request DeleteWaybillProductRequest) error
 	GetWaybillProducts(request GetWaybillProductsRequest) ([]models.WaybillProduct, error)
-	WaybillsFilter(request WaybillsFilterRequest) ([]models.ShortWaybill, error)
-	WaybillAddProduct(product models.WaybillProduct) (models.WaybillProduct, error)
-	WaybillUpdateProduct(product models.WaybillProduct) ([]models.WaybillProduct, error)
 }
 
-func NewWaybillService() WaybillService {
+func NewWaybillService() Service {
 	return &waybillService{}
 }
 
@@ -223,21 +224,49 @@ func (ws waybillService) WaybillUpdateProduct(product models.WaybillProduct) (mo
 }
 
 func (ws waybillService) DeleteWaybill(request DeleteWaybillRequest) error {
+	if request.MerchantId == "" {
+		return newStringError(http.StatusBadRequest, "merchant id is empty")
+	}
+	if request.WaybillId == 0 {
+		return newStringError(http.StatusBadRequest, "waybill id is empty")
+	}
 
+	err := DeleteWaybillById(context.TODO(), request.WaybillId)
+	if err != nil {
+		return newError(http.StatusInternalServerError, err)
+	}
+
+	return nil
 }
 
 func (ws waybillService) GetWaybillProducts(request GetWaybillProductsRequest) ([]models.WaybillProduct, error) {
+	if request.WaybillId == 0 {
+		return nil, newStringError(http.StatusBadRequest, "waybill id is empty")
+	}
+	products, err := GetWaybillProducts(context.TODO(), request)
+	if err != nil {
+		return nil, newError(http.StatusInternalServerError, err)
+	}
 
+	return products, nil
 }
 
 func (ws waybillService) WaybillsFilter(request WaybillsFilterRequest) ([]models.ShortWaybill, error) {
+	if request.MerchantId == "" {
+		return nil, newStringError(http.StatusBadRequest, "merchant id is empty")
+	}
+	waybills, err := GetWaybill(context.TODO(), request)
+	if err != nil {
+		return nil, newError(http.StatusInternalServerError, err)
+	}
+	return waybills, nil
 
 }
 
 func setDocNumber() string {
 	docNum := fmt.Sprintf("%v", rand.Intn(1000000))
 	for i := len(docNum); i < 6; i++ {
-		docNum := fmt.Sprintf("%v%v", "0", docNum)
+		docNum = fmt.Sprintf("%v%v", "0", docNum)
 	}
 	return docNum
 }

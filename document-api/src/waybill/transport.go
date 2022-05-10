@@ -3,9 +3,7 @@ package waybill
 import (
 	"context"
 	"encoding/json"
-	"github.com/mukhametkaly/Diploma/document-api/src/inventory"
-	"github.com/mukhametkaly/Diploma/document-api/src/waybill"
-	"github.com/mukhametkaly/Diploma/product-api/src/models"
+	"github.com/mukhametkaly/Diploma/document-api/src/models"
 	"net/http"
 	"strconv"
 
@@ -21,44 +19,58 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	createProduct := kithttp.NewServer(
-		waybill.makeCreateProductEndpoint(ss),
-		decodeCreateProductRequest,
+	createWaybill := kithttp.NewServer(
+		makeCreateWaybillEndpoint(ss),
+		decodeCreateWaybillRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	updateProduct := kithttp.NewServer(
-		waybill.makeUpdateProductEndpoint(ss),
-		decodeUpdateProductRequest,
+	updateWaybill := kithttp.NewServer(
+		makeUpdateWaybillEndpoint(ss),
+		decodeUpdateWaybillRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	deleteProduct := kithttp.NewServer(
-		waybill.makeDeleteProductEndpoint(ss),
-		decodeDeleteProductRequest,
+	deleteWaybill := kithttp.NewServer(
+		makeDeleteWaybillEndpoint(ss),
+		decodeDeleteWaybillRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	deleteMProduct := kithttp.NewServer(
-		waybill.makeDeleteBatchProductEndpoint(ss),
-		decodeDeleteBatchProductRequest,
+	filterWaybill := kithttp.NewServer(
+		makeGetWaybillEndpoint(ss),
+		decodeGetWaybillRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	getProduct := kithttp.NewServer(
-		waybill.makeGetProductEndpoint(ss),
-		decodeGetProductRequest,
+	addWaybillProduct := kithttp.NewServer(
+		makeAddProductEndpoint(ss),
+		decodeWaybillAddProductRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	filterProducts := kithttp.NewServer(
-		waybill.makeFilterProductEndpoint(ss),
-		decodeFilterProductSync,
+	updateWaybillProduct := kithttp.NewServer(
+		makeUpdateWaybillProductEndpoint(ss),
+		decodeWaybillUpdateProductRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	deleteWaybillProduct := kithttp.NewServer(
+		makeDeleteWaybillProductEndpoint(ss),
+		decodeDeleteWaybillProductRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	getWaybillProduct := kithttp.NewServer(
+		makeGetWaybillProductEndpoint(ss),
+		decodeGetWaybillProductsRequest,
 		encodeResponse,
 		opts...,
 	)
@@ -74,32 +86,30 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	return r
 }
 
-func decodeCreateProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var body models.Product
+func decodeCreateWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body models.ShortWaybill
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
 	}
 	return body, nil
 }
 
-func decodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeUpdateWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	strId, ok := vars["id"]
 	if !ok {
-		return nil, InvalidCharacter
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
 	}
 
 	id, err := strconv.ParseInt(strId, 0, 64)
 	if err != nil {
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
 	}
 
-	var body models.Product
+	var body models.ShortWaybill
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
 	}
 
 	body.ID = id
@@ -107,53 +117,106 @@ func decodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 	return body, nil
 }
 
-func decodeDeleteProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeDeleteWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	strId, ok := vars["id"]
 	if !ok {
-		return nil, InvalidCharacter
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
+	}
+
+	merchantId, ok := vars["merchantId"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no merchant id")
 	}
 
 	id, err := strconv.ParseInt(strId, 0, 64)
 	if err != nil {
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
 	}
 
-	return id, nil
+	req := DeleteWaybillRequest{
+		WaybillId:  id,
+		MerchantId: merchantId,
+	}
+
+	return req, nil
 }
 
-func decodeGetProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	strId, ok := vars["id"]
-	if !ok {
-		return nil, InvalidCharacter
-	}
+func decodeGetWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body WaybillsFilterRequest
 
-	id, err := strconv.ParseInt(strId, 0, 64)
-	if err != nil {
-		return nil, InvalidCharacter
-	}
-
-	return id, nil
-}
-
-func decodeDeleteBatchProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
-
-	var body []int64
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
+	}
+	return body, nil
+}
+
+func decodeWaybillAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body models.WaybillProduct
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		return nil, newError(http.StatusBadRequest, err)
 	}
 
 	return body, nil
 }
 
-func decodeFilterProductSync(_ context.Context, r *http.Request) (interface{}, error) {
-	var body inventory.FilterProductsRequest
+func decodeWaybillUpdateProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
+	}
+
+	waybillIdStr, ok := vars["waybillId"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
+	}
+	waybillId, err := strconv.ParseInt(waybillIdStr, 0, 64)
+	if err != nil {
+		return nil, newError(http.StatusBadRequest, err)
+	}
+
+	var body models.WaybillProduct
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		return nil, newError(http.StatusBadRequest, err)
+	}
+
+	body.Barcode = id
+	body.WaybillId = waybillId
+
+	return body, nil
+}
+
+func decodeDeleteWaybillProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	waybillIdStr, ok := vars["waybillId"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
+	}
+	waybillId, err := strconv.ParseInt(waybillIdStr, 0, 64)
+	if err != nil {
+		return nil, newError(http.StatusBadRequest, err)
+	}
+
+	barcode, ok := vars["barcode"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no merchant id")
+	}
+
+	req := DeleteWaybillProductRequest{
+		WaybillId: waybillId,
+		Barcode:   barcode,
+	}
+
+	return req, nil
+}
+
+func decodeGetWaybillProductsRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body GetWaybillProductsRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		InvalidCharacter.DeveloperMessage = err.Error()
-		return nil, InvalidCharacter
+		return nil, newError(http.StatusBadRequest, err)
 	}
 	return body, nil
 }

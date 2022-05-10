@@ -3,14 +3,13 @@ package waybill
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/mukhametkaly/Diploma/document-api/src/inventory"
-	"github.com/mukhametkaly/Diploma/product-api/src/models"
+	"github.com/mukhametkaly/Diploma/document-api/src/models"
 )
 
-func makeCreateProductEndpoint(s Service) endpoint.Endpoint {
+func makeCreateWaybillEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.Product)
-		resp, err := s.CreateProduct(req)
+		req := request.(models.ShortWaybill)
+		resp, err := s.CreateWaybill(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -19,10 +18,10 @@ func makeCreateProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateProductEndpoint(s Service) endpoint.Endpoint {
+func makeUpdateWaybillEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.Product)
-		resp, err := s.UpdateProduct(req)
+		req := request.(models.ShortWaybill)
+		resp, err := s.UpdateWaybill(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -31,10 +30,10 @@ func makeUpdateProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteProductEndpoint(s Service) endpoint.Endpoint {
+func makeDeleteWaybillEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(int64)
-		err := s.DeleteByIdProduct(req)
+		req := request.(DeleteWaybillRequest)
+		err := s.DeleteWaybill(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -43,22 +42,10 @@ func makeDeleteProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteBatchProductEndpoint(s Service) endpoint.Endpoint {
+func makeGetWaybillEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.([]int64)
-		err := s.DeleteBatchProduct(req)
-		if err != nil {
-			Loger.Println(err)
-			return nil, err
-		}
-		return nil, nil
-	}
-}
-
-func makeGetProductEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(int64)
-		resp, err := s.GetProductById(req)
+		req := request.(WaybillsFilterRequest)
+		resp, err := s.WaybillsFilter(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -67,10 +54,46 @@ func makeGetProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeFilterProductEndpoint(s Service) endpoint.Endpoint {
+func makeAddProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(inventory.FilterProductsRequest)
-		resp, err := s.FilterProducts(req)
+		req := request.(models.WaybillProduct)
+		resp, err := s.WaybillAddProduct(req)
+		if err != nil {
+			Loger.Println(err)
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+
+func makeUpdateWaybillProductEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(models.WaybillProduct)
+		resp, err := s.WaybillUpdateProduct(req)
+		if err != nil {
+			Loger.Println(err)
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+
+func makeDeleteWaybillProductEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(DeleteWaybillProductRequest)
+		err := s.DeleteWaybillProduct(req)
+		if err != nil {
+			Loger.Println(err)
+			return nil, err
+		}
+		return nil, nil
+	}
+}
+
+func makeGetWaybillProductEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetWaybillProductsRequest)
+		resp, err := s.GetWaybillProducts(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -95,7 +118,7 @@ type GetWaybillProductsRequest struct {
 }
 
 type WaybillsFilterRequest struct {
-	MerchantId     int64  `json:"merchant_id"`
+	MerchantId     string `json:"merchant_id"`
 	Status         string `json:"status"`
 	DocumentNumber string `json:"document_number"`
 }

@@ -75,6 +75,7 @@ func (d *ShortWaybillDTO) fromDTO() models.ShortWaybill {
 	waybill.UpdatedOn = d.UpdatedOn
 	waybill.ProvidedTime = d.ProvidedTime
 	waybill.Status = d.Status
+	return waybill
 }
 
 func (d *ShortWaybillDTO) toDTO(waybill models.ShortWaybill) {
@@ -90,24 +91,24 @@ func (d *ShortWaybillDTO) toDTO(waybill models.ShortWaybill) {
 }
 
 type WaybillProductsDTO struct {
-	tableName     struct{} `pg:"short_waybill"`
-	Barcode       string
-	Name          string
-	AmountBefore  float64
-	AmountAfter   float64
-	WaybillId     int64
-	PurchasePrice float64
-	SellingPrice  float64
-	Total         float64
-	CreatedOn     time.Time
+	tableName      struct{} `pg:"waybill_product"`
+	Barcode        string
+	Name           string
+	ReceivedAmount float64
+	Amount         float64
+	WaybillId      int64
+	PurchasePrice  float64
+	SellingPrice   float64
+	Total          float64
+	CreatedOn      time.Time
 }
 
 func (d *WaybillProductsDTO) fromDTO() models.WaybillProduct {
 	var product models.WaybillProduct
 	product.Barcode = d.Barcode
 	product.Name = d.Name
-	product.AmountBefore = d.AmountBefore
-	product.AmountAfter = d.AmountAfter
+	product.Amount = d.Amount
+	product.ReceivedAmount = d.ReceivedAmount
 	product.WaybillId = d.WaybillId
 	product.PurchasePrice = d.PurchasePrice
 	product.SellingPrice = d.SellingPrice
@@ -119,8 +120,8 @@ func (d *WaybillProductsDTO) fromDTO() models.WaybillProduct {
 func (d *WaybillProductsDTO) toDTO(product models.WaybillProduct) {
 	d.Barcode = product.Barcode
 	d.Name = product.Name
-	d.AmountBefore = product.AmountBefore
-	d.AmountAfter = product.AmountAfter
+	d.Amount = product.Amount
+	d.ReceivedAmount = product.ReceivedAmount
 	d.WaybillId = product.WaybillId
 	d.PurchasePrice = product.PurchasePrice
 	d.SellingPrice = product.SellingPrice
@@ -159,7 +160,7 @@ func UpdateWaybillStatus(ctx context.Context, waybill models.ShortWaybill) (err 
 	var dtoWaybill ShortWaybillDTO
 	dtoWaybill.toDTO(waybill)
 
-	_, err = conn.ModelContext(ctx, &waybill).WherePK().Column("updated_on", "provided_time", "status").Update()
+	_, err = conn.ModelContext(ctx, &dtoWaybill).WherePK().Column("updated_on", "provided_time", "status").Update()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -243,7 +244,7 @@ func IfDocNumberExist(ctx context.Context, merchantId, docNum string) (bool, err
 	conn, err := GetPGSession()
 	if err != nil {
 		Loger.Debugln("error getSession in GetWaybill", err.Error())
-		return nil, err
+		return false, err
 	}
 
 	waybillDto := []ShortWaybillDTO{}
@@ -294,6 +295,10 @@ func GetWaybillProducts(ctx context.Context, req GetWaybillProductsRequest) (pro
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
+	}
+
+	for _, productDTO := range DtoProducts {
+		product = append(product, productDTO.fromDTO())
 	}
 
 	return
@@ -347,7 +352,10 @@ func UpdateWaybillProduct(ctx context.Context, product models.WaybillProduct) (e
 	var dtoProduct WaybillProductsDTO
 	dtoProduct.toDTO(product)
 
-	_, err = conn.ModelContext(ctx, &dtoProduct).Update("received_amount", "amount", "purchase_price", "selling_price", "total")
+	_, err = conn.ModelContext(ctx, &dtoProduct).
+		Where("barcode = ?", dtoProduct.Barcode).
+		Where("waybill_id = ?", dtoProduct.WaybillId).
+		Update("received_amount", "amount", "purchase_price", "selling_price", "total")
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return

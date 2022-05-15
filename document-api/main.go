@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/mukhametkaly/Diploma/product-api/src/config"
-	"github.com/mukhametkaly/Diploma/product-api/src/product"
+	"github.com/mukhametkaly/Diploma/document-api/src/config"
+	"github.com/mukhametkaly/Diploma/document-api/src/inventory"
+	"github.com/mukhametkaly/Diploma/document-api/src/waybill"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,7 +17,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var productService product.Service
+var waybillService waybill.Service
+var inventoryService inventory.Service
 
 func main() {
 	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
@@ -35,24 +37,31 @@ func main() {
 			FullTimestamp: true,
 		},
 	}
-	product.Loger = logr
+	waybill.Loger = logr
+	inventory.Loger = logr
 
 	err := config.GetConfigs()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	productService = product.NewService()
-	productService = product.NewLoggingService(log.With(logger, "component", "waybill"), productService)
+	waybillService = waybill.NewWaybillService()
+	waybillService = waybill.NewLoggingService(log.With(logger, "component", "waybill"), waybillService)
+
+	inventoryService = inventory.NewInventoryService()
+	inventoryService = inventory.NewLoggingService(log.With(logger, "component", "waybill"), inventoryService)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
-	mux.Handle("/v1/waybill/", product.MakeHandler(productService, httpLogger))
+	mux.Handle("/v1/waybill/", waybill.MakeHandler(waybillService, httpLogger))
+	mux.Handle("/v1/inventory/", inventory.MakeHandler(inventoryService, httpLogger))
 	http.Handle("/v1/waybill/", accessControl(mux))
+	http.Handle("/v1/inventory/", accessControl(mux))
 	http.HandleFunc("/v1/check", config.Healthchecks)
 	errs := make(chan error, 2)
 	go func() {
-		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening waybill-api V1.0.0")
+		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening document-api V1.0.0")
 		errs <- http.ListenAndServe(*httpAddr, nil)
 	}()
 	go func() {

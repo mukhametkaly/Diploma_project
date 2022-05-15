@@ -1,4 +1,4 @@
-package waybill
+package inventory
 
 import (
 	"context"

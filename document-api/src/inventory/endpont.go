@@ -1,4 +1,4 @@
-package waybill
+package inventory
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	"github.com/mukhametkaly/Diploma/document-api/src/models"
 )
 
-func makeCreateWaybillEndpoint(s Service) endpoint.Endpoint {
+func makeCreateInventoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.ShortWaybill)
-		resp, err := s.CreateWaybill(req)
+		req := request.(models.ShortInventory)
+		resp, err := s.CreateInventory(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -18,10 +18,10 @@ func makeCreateWaybillEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateWaybillEndpoint(s Service) endpoint.Endpoint {
+func makeUpdateInventoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.ShortWaybill)
-		resp, err := s.UpdateWaybill(req)
+		req := request.(models.ShortInventory)
+		resp, err := s.UpdateInventory(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -30,10 +30,10 @@ func makeUpdateWaybillEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeGetWaybillEndpoint(s Service) endpoint.Endpoint {
+func makeGetInventoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetWaybillRequest)
-		resp, err := s.GetWaybill(req)
+		req := request.(GetInventoryRequest)
+		resp, err := s.GetInventory(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -42,10 +42,10 @@ func makeGetWaybillEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteWaybillEndpoint(s Service) endpoint.Endpoint {
+func makeDeleteInventoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(DeleteWaybillRequest)
-		err := s.DeleteWaybill(req)
+		req := request.(DeleteInventoryRequest)
+		err := s.DeleteInventory(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -54,10 +54,10 @@ func makeDeleteWaybillEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeFilterWaybillEndpoint(s Service) endpoint.Endpoint {
+func makeFilterInventoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(WaybillsFilterRequest)
-		resp, err := s.WaybillsFilter(req)
+		req := request.(InventorysFilterRequest)
+		resp, err := s.InventorysFilter(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -68,8 +68,8 @@ func makeFilterWaybillEndpoint(s Service) endpoint.Endpoint {
 
 func makeAddProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.WaybillProduct)
-		resp, err := s.WaybillAddProduct(req)
+		req := request.(models.InventoryProduct)
+		resp, err := s.InventoryAddProduct(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -78,10 +78,10 @@ func makeAddProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateWaybillProductEndpoint(s Service) endpoint.Endpoint {
+func makeUpdateInventoryProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(models.WaybillProduct)
-		resp, err := s.WaybillUpdateProduct(req)
+		req := request.(models.InventoryProduct)
+		resp, err := s.InventoryUpdateProduct(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -90,10 +90,10 @@ func makeUpdateWaybillProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteWaybillProductEndpoint(s Service) endpoint.Endpoint {
+func makeDeleteInventoryProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(DeleteWaybillProductRequest)
-		err := s.DeleteWaybillProduct(req)
+		req := request.(DeleteInventoryProductRequest)
+		err := s.DeleteInventoryProduct(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -102,10 +102,10 @@ func makeDeleteWaybillProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeGetWaybillProductEndpoint(s Service) endpoint.Endpoint {
+func makeGetInventoryProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetWaybillProductsRequest)
-		resp, err := s.GetWaybillProducts(req)
+		req := request.(GetInventoryProductsRequest)
+		resp, err := s.GetInventoryProducts(req)
 		if err != nil {
 			Loger.Println(err)
 			return nil, err
@@ -114,28 +114,28 @@ func makeGetWaybillProductEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-type DeleteWaybillRequest struct {
-	WaybillId  int64  `json:"waybill_id"`
-	MerchantId string `json:"merchant_id"`
+type DeleteInventoryRequest struct {
+	InventoryId int64  `json:"inventory_id"`
+	MerchantId  string `json:"merchant_id"`
 }
 
-type DeleteWaybillProductRequest struct {
-	WaybillId int64  `json:"waybill_id"`
-	Barcode   string `json:"barcode"`
+type DeleteInventoryProductRequest struct {
+	InventoryId int64  `json:"inventory_id"`
+	Barcode     string `json:"barcode"`
 }
 
-type GetWaybillProductsRequest struct {
-	WaybillId int64  `json:"waybill_id"`
-	Barcode   string `json:"barcode"`
+type GetInventoryProductsRequest struct {
+	InventoryId int64  `json:"inventory_id"`
+	Barcode     string `json:"barcode"`
 }
 
-type WaybillsFilterRequest struct {
+type InventorysFilterRequest struct {
 	MerchantId     string `json:"merchant_id"`
 	Status         string `json:"status"`
 	DocumentNumber string `json:"document_number"`
 }
 
-type GetWaybillRequest struct {
-	MerchantId string `json:"merchant_id"`
-	WaybillId  int64  `json:"waybill_id"`
+type GetInventoryRequest struct {
+	MerchantId  string `json:"merchant_id"`
+	InventoryId int64  `json:"inventory_id"`
 }

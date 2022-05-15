@@ -17,6 +17,7 @@ type Service interface {
 	CreateWaybill(waybill models.ShortWaybill) (models.ShortWaybill, error)
 	UpdateWaybill(waybill models.ShortWaybill) (models.ShortWaybill, error)
 	DeleteWaybill(request DeleteWaybillRequest) error
+	GetWaybill(request GetWaybillRequest) (models.ShortWaybill, error)
 	WaybillsFilter(request WaybillsFilterRequest) ([]models.ShortWaybill, error)
 
 	WaybillAddProduct(product models.WaybillProduct) (models.WaybillProduct, error)
@@ -57,6 +58,17 @@ func (ws waybillService) CreateWaybill(waybill models.ShortWaybill) (models.Shor
 
 }
 
+func (ws waybillService) GetWaybill(request GetWaybillRequest) (models.ShortWaybill, error) {
+
+	waybill, err := GetWaybillById(context.Background(), request.WaybillId)
+	if err != nil {
+		return models.ShortWaybill{}, newError(http.StatusInternalServerError, err)
+	}
+
+	return waybill, nil
+
+}
+
 func (ws waybillService) UpdateWaybill(waybill models.ShortWaybill) (models.ShortWaybill, error) {
 
 	if waybill.MerchantId == "" {
@@ -73,11 +85,14 @@ func (ws waybillService) UpdateWaybill(waybill models.ShortWaybill) (models.Shor
 	if oldWaybill.Status == models.StatusDraft {
 		if waybill.Status == models.StatusProvided {
 			waybill.ProvidedTime = waybill.UpdatedOn
-
+			err = UpdateWaybillStatus(context.TODO(), waybill)
+			if err != nil {
+				return models.ShortWaybill{}, newError(http.StatusInternalServerError, err)
+			}
 		}
 	}
 
-	return oldWaybill, err
+	return waybill, err
 
 }
 
@@ -119,7 +134,7 @@ func (ws waybillService) WaybillAddProduct(product models.WaybillProduct) (model
 		return models.WaybillProduct{}, newError(http.StatusInternalServerError, err)
 	}
 
-	waybillSum := product.SellingPrice * product.ReceivedAmount
+	waybillSum := product.PurchasePrice * product.ReceivedAmount
 	err = UpdateWaybillSum(context.Background(), product.WaybillId, waybillSum)
 	if err != nil {
 		return models.WaybillProduct{}, newError(http.StatusInternalServerError, err)
@@ -162,7 +177,7 @@ func (ws waybillService) DeleteWaybillProduct(request DeleteWaybillProductReques
 
 	oldProduct := oldProducts[0]
 
-	waybillSum := oldProduct.SellingPrice * oldProduct.ReceivedAmount * -1
+	waybillSum := oldProduct.PurchasePrice * oldProduct.ReceivedAmount * -1
 	err = UpdateWaybillSum(context.Background(), request.WaybillId, waybillSum)
 	if err != nil {
 		return newError(http.StatusInternalServerError, err)
@@ -209,7 +224,7 @@ func (ws waybillService) WaybillUpdateProduct(product models.WaybillProduct) (mo
 
 	oldProduct := oldProducts[0]
 
-	waybillSum := (product.SellingPrice * product.ReceivedAmount) - oldProduct.SellingPrice*oldProduct.ReceivedAmount
+	waybillSum := (product.PurchasePrice * product.ReceivedAmount) - (oldProduct.PurchasePrice * oldProduct.ReceivedAmount)
 	err = UpdateWaybillSum(context.Background(), product.WaybillId, waybillSum)
 	if err != nil {
 		return models.WaybillProduct{}, newError(http.StatusInternalServerError, err)

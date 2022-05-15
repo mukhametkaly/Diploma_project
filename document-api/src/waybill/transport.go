@@ -26,6 +26,13 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	getWaybill := kithttp.NewServer(
+		makeGetWaybillEndpoint(ss),
+		decodeGetWaybillRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	updateWaybill := kithttp.NewServer(
 		makeUpdateWaybillEndpoint(ss),
 		decodeUpdateWaybillRequest,
@@ -41,8 +48,8 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	)
 
 	filterWaybill := kithttp.NewServer(
-		makeGetWaybillEndpoint(ss),
-		decodeGetWaybillRequest,
+		makeFilterWaybillEndpoint(ss),
+		decodeFilterWaybillRequest,
 		encodeResponse,
 		opts...,
 	)
@@ -76,12 +83,16 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	)
 
 	r := mux.NewRouter()
-	r.Handle("/v1/waybill/create", createProduct).Methods("POST")
-	r.Handle("/v1/waybill/{id}", getProduct).Methods("GET")
-	r.Handle("/v1/waybill/{id}", updateProduct).Methods("PUT")
-	r.Handle("/v1/waybill/{id}", deleteProduct).Methods("DELETE")
-	r.Handle("/v1/waybill/delete/batch", deleteMProduct).Methods("POST")
-	r.Handle("/v1/waybill/filter", filterProducts).Methods("POST")
+	r.Handle("/v1/waybill/create", createWaybill).Methods("POST")
+	r.Handle("/v1/waybill/{id}", getWaybill).Methods("GET")
+	r.Handle("/v1/waybill/{id}", updateWaybill).Methods("PUT")
+	r.Handle("/v1/waybill/{merchantId}/{id}", deleteWaybill).Methods("DELETE")
+	r.Handle("/v1/waybill/filter", filterWaybill).Methods("POST")
+
+	r.Handle("/v1/waybill/add/product", addWaybillProduct).Methods("POST")
+	r.Handle("/v1/waybill/product/{waybillId}/{barcode}", updateWaybillProduct).Methods("PUT")
+	r.Handle("/v1/waybill/product/{waybillId}/{barcode}", deleteWaybillProduct).Methods("DELETE")
+	r.Handle("/v1/waybill/product/get", getWaybillProduct).Methods("POST")
 
 	return r
 }
@@ -142,12 +153,33 @@ func decodeDeleteWaybillRequest(_ context.Context, r *http.Request) (interface{}
 	return req, nil
 }
 
-func decodeGetWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeFilterWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var body WaybillsFilterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, newError(http.StatusBadRequest, err)
 	}
+	return body, nil
+}
+
+func decodeGetWaybillRequest(_ context.Context, r *http.Request) (interface{}, error) {
+
+	vars := mux.Vars(r)
+	strId, ok := vars["id"]
+	if !ok {
+		return nil, newStringError(http.StatusBadRequest, "no waybill id")
+	}
+
+	id, err := strconv.ParseInt(strId, 0, 64)
+	if err != nil {
+		return nil, newError(http.StatusBadRequest, err)
+	}
+
+	var body GetWaybillRequest = GetWaybillRequest{
+		MerchantId: "",
+		WaybillId:  id,
+	}
+
 	return body, nil
 }
 
@@ -163,7 +195,7 @@ func decodeWaybillAddProductRequest(_ context.Context, r *http.Request) (interfa
 
 func decodeWaybillUpdateProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	id, ok := vars["id"]
+	id, ok := vars["barcode"]
 	if !ok {
 		return nil, newStringError(http.StatusBadRequest, "no waybill id")
 	}

@@ -11,7 +11,6 @@ type ShortInventory struct {
 	ID             int64     `json:"id"`
 	DocumentNumber string    `json:"document_number"`
 	MerchantId     string    `json:"merchant_id"`
-	StockId        int64     `json:"stock_id"`
 	TotalSum       float64   `json:"total_sum"`
 	CreatedOn      time.Time `json:"created_on"`
 	UpdatedOn      time.Time `json:"updated_on"`
@@ -35,8 +34,7 @@ type InventoryProduct struct {
 	Barcode       string    `json:"barcode"`
 	Name          string    `json:"name"`
 	ActualAmount  float64   `json:"actual_amount"`
-	AmountBefore  float64   `json:"amount"`
-	DifAmount     float64   `json:"dif_amount"`
+	Amount        float64   `json:"amount"`
 	InventoryId   int64     `json:"inventory_id"`
 	PurchasePrice float64   `json:"purchase_price"`
 	SellingPrice  float64   `json:"selling_price"`

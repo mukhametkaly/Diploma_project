@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96424c6d-18e2-4605-8f7f-45486bcd905d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/waybill/endpont.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/endpont.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/waybill/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/waybill/transport.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/transport.go" afterDir="false" />
+    <list default="true" id="96424c6d-18e2-4605-8f7f-45486bcd905d" name="Changes" comment="update dockerfile">
+      <change beforePath="$PROJECT_DIR$/../auth-api/src/auth/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-api/src/auth/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migration/products.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/migration/products.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/posgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../product-api/src/migration/products.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/migration/products.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,11 +49,12 @@
     &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/mamantayev/go/src/github.com/mukhametkaly/Diploma/product-api&quot;
+    &quot;last_opened_file_path&quot;: &quot;/home/mamantayev/go/src/github.com/mukhametkaly/Diploma/document-api&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/inventory" />
       <recent name="$PROJECT_DIR$/product" />
       <recent name="$PROJECT_DIR$" />
     </key>
@@ -61,11 +65,59 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration name="go build github.com/mukhametkaly/Diploma/document-api" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="document-api" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/mukhametkaly/Diploma/document-api" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build github.com/mukhametkaly/Diploma/document-api" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="document api done" />
+    <MESSAGE value="update dockerfile" />
+    <option name="LAST_COMMIT_MESSAGE" value="update dockerfile" />
+  </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/src/waybill/service.go</url>
+          <line>73</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/src/waybill/posgres.go</url>
+          <line>281</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

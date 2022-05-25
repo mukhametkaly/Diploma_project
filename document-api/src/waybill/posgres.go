@@ -56,7 +56,6 @@ type ShortWaybillDTO struct {
 	Id             int64    `pg:",pk,unique"`
 	DocumentNumber string
 	MerchantId     string
-	StockId        int64
 	TotalSum       float64
 	CreatedOn      time.Time
 	UpdatedOn      time.Time
@@ -69,7 +68,6 @@ func (d *ShortWaybillDTO) fromDTO() models.ShortWaybill {
 	waybill.ID = d.Id
 	waybill.DocumentNumber = d.DocumentNumber
 	waybill.MerchantId = d.MerchantId
-	waybill.StockId = d.StockId
 	waybill.TotalSum = d.TotalSum
 	waybill.CreatedOn = d.CreatedOn
 	waybill.UpdatedOn = d.UpdatedOn
@@ -82,7 +80,6 @@ func (d *ShortWaybillDTO) toDTO(waybill models.ShortWaybill) {
 	d.Id = waybill.ID
 	d.DocumentNumber = waybill.DocumentNumber
 	d.MerchantId = waybill.MerchantId
-	d.StockId = waybill.StockId
 	d.TotalSum = waybill.TotalSum
 	d.CreatedOn = waybill.CreatedOn
 	d.UpdatedOn = waybill.UpdatedOn

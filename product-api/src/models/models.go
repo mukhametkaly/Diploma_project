@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Product struct {
 	ID            int64   `json:"id"`
 	Barcode       string  `json:"barcode"`
@@ -13,4 +15,13 @@ type Product struct {
 	Amount        float64 `json:"amount"`
 	Margin        float64 `json:"margin"`
 	UnitType      string  `json:"unit_type"`
+}
+
+type Category struct {
+	ID           int64  `json:"id"`
+	MerchantId   string `json:"merchantId"`
+	CategoryName string
+	Description  string
+	CreatedOn    time.Time
+	UpdatedOn    time.Time
 }

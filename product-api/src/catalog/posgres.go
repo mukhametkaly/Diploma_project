@@ -1,4 +1,4 @@
-package product
+package catalog
 
 import (
 	"context"
@@ -151,7 +151,7 @@ func UpdateProduct(ctx context.Context, product models.Product) (err error) {
 	productDto := ProductDTO{}
 	productDto.toDTO(product)
 
-	//_, err = conn.ModelContext(ctx, &product).WherePK().Update(product)
+	//_, err = conn.ModelContext(ctx, &catalog).WherePK().Update(catalog)
 
 	_, err = conn.ModelContext(ctx, &product).WherePK().Column("purchase_price", "selling_price", "amount", "category_id", "name").Update()
 	if err != nil {
@@ -242,5 +242,153 @@ func CheckBarcode(ctx context.Context, merchantId, barcode string) (bool, error)
 	productDtos := []ProductDTO{}
 
 	return conn.ModelContext(ctx, &productDtos).Where("merchant_id = ?", merchantId).Where("barcode = ?", barcode).Exists()
+
+}
+
+func GetCategoryById(ctx context.Context, id int64) (category models.Category, err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetCategoryById", err.Error())
+		return
+	}
+
+	categoryDto := models.Category{}
+
+	q := conn.ModelContext(ctx, &categoryDto).Where("id = ?", id)
+	err = q.Select()
+	if err != nil {
+		Loger.Debugln("error select in get list orders", err.Error())
+		return
+	}
+
+	return categoryDto, nil
+}
+
+func InsertCategory(ctx context.Context, category models.Category) (result models.Category, err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetCategoryById", err.Error())
+		return
+	}
+
+	_, err = conn.ModelContext(ctx, &category).Returning("*", category).Insert()
+	if err != nil {
+		Loger.Debugln("error select in get list orders", err.Error())
+		return
+	}
+
+	return category, nil
+}
+
+func UpdateCategory(ctx context.Context, category models.Category) (err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetCategoryById", err.Error())
+		return
+	}
+
+	_, err = conn.ModelContext(ctx, &category).
+		WherePK().
+		Update()
+
+	if err != nil {
+		Loger.Debugln("error UpdateCategory", err.Error())
+		return
+	}
+
+	return
+}
+
+func DeleteCategoryById(ctx context.Context, id int64) (err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error DeleteCategoryById", err.Error())
+		return
+	}
+
+	_, err = conn.ModelContext(ctx, (*models.Category)(nil)).
+		Where("id = ?", id).
+		Delete()
+
+	if err != nil {
+		Loger.Debugln("error select in get list orders", err.Error())
+		return
+	}
+
+	return
+}
+
+func MDeleteCategoryByIds(ctx context.Context, ids []int64) (err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in MDeleteCategoryByIds", err.Error())
+		return
+	}
+
+	_, err = conn.ModelContext(ctx, (*models.Category)(nil)).
+		Where("id IN (?)", pg.In(ids)).
+		Delete()
+
+	if err != nil {
+		Loger.Debugln("error MDeleteCategoryByIds", err.Error())
+		return
+	}
+
+	return
+}
+
+func GetCategoryByName(ctx context.Context, categoryName, merchantId string) (models.Category, error) {
+
+	conn, err := GetPGSession()
+	if err != nil {
+		return models.Category{}, err
+	}
+
+	categoryDtos := models.Category{}
+
+	err = conn.ModelContext(ctx, &categoryDtos).
+		Where("merchant_id = ?", merchantId).
+		Where("category_name = ?", categoryName).
+		Select()
+
+	if err != nil && err != pg.ErrNoRows {
+		return models.Category{}, err
+	}
+
+	return categoryDtos, nil
+
+}
+
+func FilterCategories(ctx context.Context, merchantId string) ([]models.Category, error) {
+
+	conn, err := GetPGSession()
+	if err != nil {
+		return nil, err
+	}
+
+	categoryDtos := []models.Category{}
+
+	err = conn.ModelContext(ctx, &categoryDtos).
+		Where("merchant_id = ?", merchantId).
+		Select()
+
+	if err != nil && err != pg.ErrNoRows {
+		return nil, err
+	}
+
+	return categoryDtos, nil
+
+}
+
+func CheckCategoryExists(ctx context.Context, merchantId, categoryName string) (bool, error) {
+
+	conn, err := GetPGSession()
+	if err != nil {
+		return false, err
+	}
+
+	categoryDtos := []models.Category{}
+
+	return conn.ModelContext(ctx, &categoryDtos).Where("merchant_id = ?", merchantId).Where("category_name = ?", categoryName).Exists()
 
 }

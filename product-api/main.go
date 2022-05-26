@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/mukhametkaly/Diploma/product-api/src/catalog"
 	"github.com/mukhametkaly/Diploma/product-api/src/config"
-	"github.com/mukhametkaly/Diploma/product-api/src/product"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var productService product.Service
+var productService catalog.Service
 
 func main() {
 	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
@@ -35,24 +35,24 @@ func main() {
 			FullTimestamp: true,
 		},
 	}
-	product.Loger = logr
+	catalog.Loger = logr
 
 	err := config.GetConfigs()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	productService = product.NewService()
-	productService = product.NewLoggingService(log.With(logger, "component", "product"), productService)
+	productService = catalog.NewService()
+	productService = catalog.NewLoggingService(log.With(logger, "component", "catalog"), productService)
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
-	mux.Handle("/v1/product/", product.MakeHandler(productService, httpLogger))
+	mux.Handle("/v1/product/", catalog.MakeHandler(productService, httpLogger))
 	http.Handle("/v1/product/", accessControl(mux))
 	http.HandleFunc("/v1/check", config.Healthchecks)
 	errs := make(chan error, 2)
 	go func() {
-		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening product-api V1.0.0")
+		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening catalog-api V1.0.0")
 		errs <- http.ListenAndServe(*httpAddr, nil)
 	}()
 	go func() {

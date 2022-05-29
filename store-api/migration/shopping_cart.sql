@@ -1,10 +1,11 @@
+drop table shopping_carts;
 CREATE TABLE IF NOT EXISTS shopping_carts (
-    id serial PRIMARY KEY,
-    merchant_id varchar NOT NULL,
-    total_sum   double precision NOT NULL,
-    created_on timestamp NOT NULL,
-    provided_time timestamp NOT NULL,
-    status      varchar
+      id serial PRIMARY KEY,
+      merchant_id varchar NOT NULL,
+      total_sum   double precision default 0,
+      created_on timestamp NOT NULL,
+      provided_time timestamp ,
+      status      varchar
 );
 ALTER TABLE IF EXISTS shopping_carts OWNER TO postgres;
 

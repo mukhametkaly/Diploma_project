@@ -46,17 +46,19 @@ func (s *service) CreateMerchant(request models.Merchant) (models.Merchant, erro
 		InvalidCharacter.Message = "no merchant phone number"
 		return models.Merchant{}, InvalidCharacter
 	}
-	if request.EMail == "" {
+	if request.Email == "" {
 		InvalidCharacter.Message = "no merchant email"
 		return models.Merchant{}, InvalidCharacter
 	}
 
-	merchantId := RandStringRunes(8)
+	merchantId := RandStringRunes(12)
 	if merchantId == "" {
 		return models.Merchant{}, Conflict
 	}
 
 	request.MerchantId = merchantId
+	request.CreatedOn = time.Now()
+	request.UpdatedOn = request.CreatedOn
 	request.Status = models.MerchantStatusActive
 
 	merchant, err := InsertMerchant(context.Background(), request)
@@ -93,10 +95,17 @@ func (s *service) UpdateMerchant(request models.Merchant) (models.Merchant, erro
 		InvalidCharacter.Message = "no merchant phone number"
 		return models.Merchant{}, InvalidCharacter
 	}
-	if request.EMail == "" {
+	if request.Email == "" {
 		InvalidCharacter.Message = "no merchant email"
 		return models.Merchant{}, InvalidCharacter
 	}
+
+	if request.Status != models.MerchantStatusActive && request.Status != models.MerchantStatusDisabled {
+		InvalidCharacter.Message = "invalid merchant status"
+		return models.Merchant{}, InvalidCharacter
+	}
+
+	request.UpdatedOn = time.Now()
 
 	err := UpdateMerchant(context.Background(), request)
 	if err != nil {

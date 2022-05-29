@@ -57,7 +57,7 @@ func GetMerchantById(ctx context.Context, id string) (merchant models.Merchant, 
 		return
 	}
 
-	q := conn.ModelContext(ctx, &merchant).Where("id = ?", id)
+	q := conn.ModelContext(ctx, &merchant).Where("merchant_id = ?", id)
 	err = q.Select()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
@@ -90,7 +90,10 @@ func UpdateMerchant(ctx context.Context, merchant models.Merchant) (err error) {
 		return
 	}
 
-	_, err = conn.ModelContext(ctx, &merchant).WherePK().Update()
+	_, err = conn.ModelContext(ctx, &merchant).
+		WherePK().
+		Column("merchant_name", "ie", "address", "status", "bin", "phone", "email", "updated_on").
+		Update()
 
 	if err != nil {
 		Loger.Debugln("error UpdateMerchant", err.Error())

@@ -147,8 +147,9 @@ func UpdateShoppingCartStatus(ctx context.Context, shoppingCart models.ShoppingC
 
 	var dtoShoppingCart ShoppingCartDTO
 	dtoShoppingCart.toDTO(shoppingCart)
+	dtoShoppingCart.ProvidedTime = time.Now()
 
-	_, err = conn.ModelContext(ctx, &dtoShoppingCart).WherePK().Column("updated_on", "provided_time", "status").Update()
+	_, err = conn.ModelContext(ctx, &dtoShoppingCart).WherePK().Column("provided_time", "status").Update()
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -167,7 +168,11 @@ func UpdateShoppingCartSum(ctx context.Context, id int64, sum float64) (err erro
 	var dtoShoppingCart ShoppingCartDTO
 	dtoShoppingCart.Id = id
 
-	_, err = conn.ModelContext(ctx, &dtoShoppingCart).WherePK().Set("total_sum = total_sum + ?", sum).Column("updated_on").Update()
+	_, err = conn.ModelContext(ctx, &dtoShoppingCart).
+		WherePK().
+		Set("total_sum = total_sum + ?", sum).
+		Update()
+
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
@@ -269,7 +274,7 @@ func GetShoppingCartProducts(ctx context.Context, req GetShoppingCartProductsReq
 
 	DtoProducts := []ShoppingCartProductsDTO{}
 
-	query := conn.ModelContext(ctx, &DtoProducts).Where("shoppingCart_id = ?", req.ShoppingCartId)
+	query := conn.ModelContext(ctx, &DtoProducts).Where("shopping_cart_id = ?", req.ShoppingCartId)
 	if req.Barcode != "" {
 		query.Where("barcode = ?", req.Barcode)
 	}
@@ -295,7 +300,7 @@ func DeleteShoppingCartProduct(ctx context.Context, req DeleteShoppingCartProduc
 	}
 
 	_, err = conn.Model((*ShoppingCartProductsDTO)(nil)).
-		Where("shoppingCart_id = ?", req.ShoppingCartId).
+		Where("shopping_cart_id = ?", req.ShoppingCartId).
 		Where("barcode = ?", req.Barcode).
 		Delete()
 	if err != nil {
@@ -337,7 +342,7 @@ func UpdateShoppingCartProduct(ctx context.Context, product models.ShoppingCartP
 
 	_, err = conn.ModelContext(ctx, &dtoProduct).
 		Where("barcode = ?", dtoProduct.Barcode).
-		Where("shoppingCart_id = ?", dtoProduct.ShoppingCartId).
+		Where("shopping_cart_id = ?", dtoProduct.ShoppingCartId).
 		Update("received_amount", "amount", "purchase_price", "selling_price", "total")
 	if err != nil {
 		Loger.Debugln("error select in get list orders", err.Error())

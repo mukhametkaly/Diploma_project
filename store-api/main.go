@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/djumanoff/amqp"
-	"github.com/mukhametkaly/Diploma_project/auth-api/src/auth"
-	"github.com/mukhametkaly/Diploma_project/auth-api/src/config"
+	"github.com/mukhametkaly/Diploma/store-api/src/config"
+	"github.com/mukhametkaly/Diploma/store-api/src/merchant"
+	"github.com/mukhametkaly/Diploma/store-api/src/shopping_cart"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,7 +17,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var authService auth.Service
+var merchantService merchant.Service
+var basketService shopping_cart.Service
 
 func main() {
 	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
@@ -36,21 +37,28 @@ func main() {
 			FullTimestamp: true,
 		},
 	}
-	auth.Loger = logr
+	merchant.Loger = logr
+	shopping_cart.Loger = logr
 
 	err := config.GetConfigs()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	authService = auth.NewService()
-	authService = auth.NewLoggingService(log.With(logger, "component", "merchant"), authService)
+	merchantService = merchant.NewService()
+	merchantService = merchant.NewLoggingService(log.With(logger, "component", "merchant"), merchantService)
+
+	basketService = shopping_cart.NewShoppingCartService()
+	basketService = shopping_cart.NewLoggingService(log.With(logger, "component", "basket"), basketService)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
-	mux.Handle("/v1/auth/", auth.MakeHandler(authService, httpLogger))
-	http.Handle("/v1/auth/", accessControl(mux))
-	http.HandleFunc("/v1/auth/check", config.Healthchecks)
+	mux.Handle("/v1/merchant/", merchant.MakeHandler(merchantService, httpLogger))
+	http.Handle("/v1/merchant/", accessControl(mux))
+	mux.Handle("/v1/shopping_cart/", shopping_cart.MakeHandler(basketService, httpLogger))
+	http.Handle("/v1/shopping_cart/", accessControl(mux))
+	http.HandleFunc("/v1/check", config.Healthchecks)
 	errs := make(chan error, 2)
 	go func() {
 		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening merchant-api V1.0.0")
@@ -60,20 +68,6 @@ func main() {
 		c := make(chan os.Signal)
 		signal.Notify(c, syscall.SIGINT)
 		errs <- fmt.Errorf("%s", <-c)
-	}()
-
-	go func() {
-		srv, err := auth.Server()
-		if err != nil {
-			panic(fmt.Errorf("Fatal error connect Rabbit: %s \n", err))
-		}
-		if err := (*srv).Endpoint("request.auth.#", func(message amqp.Message) *amqp.Message {
-			return auth.MakeAuthServiceRabbitMQ(authService, message)
-		}); err != nil {
-			fmt.Println("err = ", err)
-		}
-		logr.Debug("auth in auth-api auth RabbitMQ server started")
-		errs <- (*srv).Start()
 	}()
 
 	logger.Log("terminated", <-errs)

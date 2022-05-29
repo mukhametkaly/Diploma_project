@@ -125,7 +125,7 @@ type DeleteShoppingCartProductRequest struct {
 }
 
 type GetShoppingCartProductsRequest struct {
-	ShoppingCartId int64  `json:"shoppingCart_id"`
+	ShoppingCartId int64  `json:"shopping_cart_id"`
 	Barcode        string `json:"barcode"`
 }
 

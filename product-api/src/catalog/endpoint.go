@@ -6,7 +6,7 @@ import (
 	"github.com/mukhametkaly/Diploma/product-api/src/models"
 )
 
-func makeCreateProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeCreateProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(models.Product)
 		resp, err := s.CreateProduct(req)
@@ -18,7 +18,7 @@ func makeCreateProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeUpdateProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(models.Product)
 		resp, err := s.UpdateProduct(req)
@@ -30,7 +30,7 @@ func makeUpdateProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeDeleteProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(int64)
 		err := s.DeleteByIdProduct(req)
@@ -42,7 +42,7 @@ func makeDeleteProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteBatchProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeDeleteBatchProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.([]int64)
 		err := s.DeleteBatchProduct(req)
@@ -54,7 +54,7 @@ func makeDeleteBatchProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeGetProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeGetProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(int64)
 		resp, err := s.GetProductById(req)
@@ -66,7 +66,7 @@ func makeGetProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeFilterProductEndpoint(s ProductService) endpoint.Endpoint {
+func makeFilterProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(FilterProductsRequest)
 		resp, err := s.FilterProducts(req)
@@ -78,7 +78,7 @@ func makeFilterProductEndpoint(s ProductService) endpoint.Endpoint {
 	}
 }
 
-func makeCreateCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeCreateCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(models.Category)
 		resp, err := s.CreateCategory(req)
@@ -90,7 +90,7 @@ func makeCreateCategoryEndpoint(s CategoryService) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeUpdateCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(models.Category)
 		resp, err := s.UpdateCategory(req)
@@ -102,7 +102,7 @@ func makeUpdateCategoryEndpoint(s CategoryService) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeDeleteCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(int64)
 		err := s.DeleteByIdCategory(req)
@@ -114,7 +114,7 @@ func makeDeleteCategoryEndpoint(s CategoryService) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteBatchCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeDeleteBatchCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.([]int64)
 		err := s.DeleteBatchCategory(req)
@@ -126,7 +126,7 @@ func makeDeleteBatchCategoryEndpoint(s CategoryService) endpoint.Endpoint {
 	}
 }
 
-func makeGetCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeGetCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(int64)
 		resp, err := s.GetCategoryById(req)
@@ -138,9 +138,9 @@ func makeGetCategoryEndpoint(s CategoryService) endpoint.Endpoint {
 	}
 }
 
-func makeFilterCategoryEndpoint(s CategoryService) endpoint.Endpoint {
+func makeFilterCategoryEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		merchantId := request.(string)
+		merchantId := request.(FilterCategoryRequest)
 		resp, err := s.FilterCategories(merchantId)
 		if err != nil {
 			Loger.Println(err)
@@ -154,6 +154,12 @@ type FilterProductsRequest struct {
 	MerchantId string `json:"merchant_id"`
 	Barcode    string `json:"barcode"`
 	Name       string `json:"name"`
+	From       int    `json:"from"`
+	Size       int    `json:"size"`
+}
+
+type FilterCategoryRequest struct {
+	MerchantId string `json:"merchant_id"`
 	From       int    `json:"from"`
 	Size       int    `json:"size"`
 }

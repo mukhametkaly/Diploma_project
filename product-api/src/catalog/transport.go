@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func MakeProductHandler(ss ProductService, logger kitlog.Logger) http.Handler {
+func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
@@ -61,23 +61,6 @@ func MakeProductHandler(ss ProductService, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
-	r := mux.NewRouter()
-	r.Handle("/v1/catalog/create", createProduct).Methods("POST")
-	r.Handle("/v1/catalog/{id}", getProduct).Methods("GET")
-	r.Handle("/v1/catalog/{id}", updateProduct).Methods("PUT")
-	r.Handle("/v1/catalog/{id}", deleteProduct).Methods("DELETE")
-	r.Handle("/v1/catalog/delete/batch", deleteMProduct).Methods("POST")
-	r.Handle("/v1/catalog/filter", filterProducts).Methods("POST")
-
-	return r
-}
-
-func MakeCategoryHandler(ss CategoryService, logger kitlog.Logger) http.Handler {
-	opts := []kithttp.ServerOption{
-		kithttp.ServerErrorLogger(logger),
-		kithttp.ServerErrorEncoder(encodeError),
-	}
-
 	createCategory := kithttp.NewServer(
 		makeCreateCategoryEndpoint(ss),
 		decodeCreateCategoryRequest,
@@ -121,12 +104,19 @@ func MakeCategoryHandler(ss CategoryService, logger kitlog.Logger) http.Handler 
 	)
 
 	r := mux.NewRouter()
-	r.Handle("/v1/category/create", createCategory).Methods("POST")
-	r.Handle("/v1/category/{id}", getCategory).Methods("GET")
-	r.Handle("/v1/category/{id}", updateCategory).Methods("PUT")
-	r.Handle("/v1/category/{id}", deleteCategory).Methods("DELETE")
-	r.Handle("/v1/category/delete/batch", deleteMCategory).Methods("POST")
-	r.Handle("/v1/category/filter", filterCategories).Methods("POST")
+	r.Handle("/v1/product/create", createProduct).Methods("POST")
+	r.Handle("/v1/product/{id}", getProduct).Methods("GET")
+	r.Handle("/v1/product/{id}", updateProduct).Methods("PUT")
+	r.Handle("/v1/product/{id}", deleteProduct).Methods("DELETE")
+	r.Handle("/v1/product/delete/batch", deleteMProduct).Methods("POST")
+	r.Handle("/v1/product/filter", filterProducts).Methods("POST")
+
+	r.Handle("/v1/product/category/create", createCategory).Methods("POST")
+	r.Handle("/v1/product/category/{id}", getCategory).Methods("GET")
+	r.Handle("/v1/product/category/{id}", updateCategory).Methods("PUT")
+	r.Handle("/v1/product/category/{id}", deleteCategory).Methods("DELETE")
+	r.Handle("/v1/product/category/delete/batch", deleteMCategory).Methods("POST")
+	r.Handle("/v1/product/category/filter", filterCategories).Methods("POST")
 
 	return r
 }
@@ -244,11 +234,17 @@ func decodeUpdateCategoryRequest(_ context.Context, r *http.Request) (interface{
 
 func decodeDeleteCategoryRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	categoryId, ok := vars["id"]
+	strId, ok := vars["id"]
 	if !ok {
 		return nil, InvalidCharacter
 	}
-	return categoryId, nil
+
+	id, err := strconv.ParseInt(strId, 0, 64)
+	if err != nil {
+		return nil, InvalidCharacter
+	}
+
+	return id, nil
 }
 
 func decodeGetCategoryRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -258,11 +254,16 @@ func decodeGetCategoryRequest(_ context.Context, r *http.Request) (interface{}, 
 		return nil, InvalidCharacter
 	}
 
-	return strId, nil
+	id, err := strconv.ParseInt(strId, 0, 64)
+	if err != nil {
+		return nil, InvalidCharacter
+	}
+
+	return id, nil
 }
 
 func decodeDeleteBatchCategoryRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var body []string
+	var body []int64
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, InvalidCharacter
 	}
@@ -271,13 +272,12 @@ func decodeDeleteBatchCategoryRequest(_ context.Context, r *http.Request) (inter
 }
 
 func decodeFilterCategorySync(_ context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	categoryId, ok := vars["categoryId"]
-	if !ok {
+	var body FilterCategoryRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, InvalidCharacter
 	}
 
-	return categoryId, nil
+	return body, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

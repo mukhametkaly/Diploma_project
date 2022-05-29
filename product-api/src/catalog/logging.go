@@ -13,6 +13,6 @@ type loggingService struct {
 //var Loger *log.Logger
 var Loger *logrus.Logger
 
-func NewLoggingService(logger log.Logger, s Service) Service {
-	return &loggingService{logger, s}
+func NewLoggingService(logger log.Logger, service Service) Service {
+	return &loggingService{logger, service}
 }

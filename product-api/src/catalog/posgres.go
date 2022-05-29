@@ -256,7 +256,7 @@ func GetCategoryById(ctx context.Context, id int64) (category models.Category, e
 
 	q := conn.ModelContext(ctx, &categoryDto).Where("id = ?", id)
 	err = q.Select()
-	if err != nil {
+	if err != nil && err != pg.ErrNoRows {
 		Loger.Debugln("error select in get list orders", err.Error())
 		return
 	}
@@ -289,6 +289,29 @@ func UpdateCategory(ctx context.Context, category models.Category) (err error) {
 
 	_, err = conn.ModelContext(ctx, &category).
 		WherePK().
+		Column("category_name", "updated_on", "description").
+		Update()
+
+	if err != nil {
+		Loger.Debugln("error UpdateCategory", err.Error())
+		return
+	}
+
+	return
+}
+
+func UpdateCategoryProductsCount(ctx context.Context, count int) (err error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		Loger.Debugln("error getSession in GetCategoryById", err.Error())
+		return
+	}
+
+	category := models.Category{}
+
+	_, err = conn.ModelContext(ctx, &category).
+		WherePK().
+		Set("products_count = products_count + ?", count).
 		Update()
 
 	if err != nil {
@@ -359,7 +382,7 @@ func GetCategoryByName(ctx context.Context, categoryName, merchantId string) (mo
 
 }
 
-func FilterCategories(ctx context.Context, merchantId string) ([]models.Category, error) {
+func FilterCategories(ctx context.Context, request FilterCategoryRequest) ([]models.Category, error) {
 
 	conn, err := GetPGSession()
 	if err != nil {
@@ -369,7 +392,7 @@ func FilterCategories(ctx context.Context, merchantId string) ([]models.Category
 	categoryDtos := []models.Category{}
 
 	err = conn.ModelContext(ctx, &categoryDtos).
-		Where("merchant_id = ?", merchantId).
+		Where("merchant_id = ?", request.MerchantId).
 		Select()
 
 	if err != nil && err != pg.ErrNoRows {

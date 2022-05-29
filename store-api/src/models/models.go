@@ -31,14 +31,14 @@ type ShoppingCartProduct struct {
 }
 
 type Merchant struct {
-	MerchantId   string
-	MerchantName string
-	IE           string
-	Address      string
-	Status       string
-	BIN          string
-	Phone        string
-	EMail        string
+	MerchantId   string `pg:",pk,unique"`
+	MerchantName string `json:"merchant_name"`
+	IE           string `json:"ie"`
+	Address      string `json:"address"`
+	Status       string `json:"status"`
+	BIN          string `json:"BIN"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
 	CreatedOn    time.Time
-	UpdateOn     time.Time
+	UpdatedOn    time.Time
 }

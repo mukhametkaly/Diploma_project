@@ -89,10 +89,10 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/v1/shopping_cart/{merchantId}/{id}", deleteShoppingCart).Methods("DELETE")
 	r.Handle("/v1/shopping_cart/filter", filterShoppingCart).Methods("POST")
 
-	r.Handle("/v1/shopping_cart/add/merchant", addShoppingCartProduct).Methods("POST")
-	r.Handle("/v1/shopping_cart/merchant/{shoppingCartId}/{barcode}", updateShoppingCartProduct).Methods("PUT")
-	r.Handle("/v1/shopping_cart/merchant/{shoppingCartId}/{barcode}", deleteShoppingCartProduct).Methods("DELETE")
-	r.Handle("/v1/shopping_cart/merchant/get", getShoppingCartProduct).Methods("POST")
+	r.Handle("/v1/shopping_cart/add/product", addShoppingCartProduct).Methods("POST")
+	r.Handle("/v1/shopping_cart/products/{shoppingCartId}/{barcode}", updateShoppingCartProduct).Methods("PUT")
+	r.Handle("/v1/shopping_cart/products/{shoppingCartId}/{barcode}", deleteShoppingCartProduct).Methods("DELETE")
+	r.Handle("/v1/shopping_cart/products/get", getShoppingCartProduct).Methods("POST")
 
 	return r
 }

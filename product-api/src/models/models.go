@@ -18,10 +18,11 @@ type Product struct {
 }
 
 type Category struct {
-	ID           int64  `json:"id"`
-	MerchantId   string `json:"merchantId"`
-	CategoryName string
-	Description  string
-	CreatedOn    time.Time
-	UpdatedOn    time.Time
+	ID            int64  `json:"id"`
+	MerchantId    string `json:"merchant_id"`
+	ProductsCount int64  `json:"products_count"`
+	CategoryName  string `json:"category_name"`
+	Description   string
+	CreatedOn     time.Time
+	UpdatedOn     time.Time
 }

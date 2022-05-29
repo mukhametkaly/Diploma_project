@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var productService catalog.Service
+var service catalog.Service
 
 func main() {
 	httpAddr := flag.String("http.addr", ":8080", "HTTP listen address only port :8080")
@@ -42,12 +42,12 @@ func main() {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	productService = catalog.NewService()
-	productService = catalog.NewLoggingService(log.With(logger, "component", "catalog"), productService)
+	service = catalog.NewService()
+	service = catalog.NewLoggingService(log.With(logger, "component", "catalog"), service)
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
-	mux.Handle("/v1/product/", catalog.MakeHandler(productService, httpLogger))
+	mux.Handle("/v1/product/", catalog.MakeHandler(service, httpLogger))
 	http.Handle("/v1/product/", accessControl(mux))
 	http.HandleFunc("/v1/check", config.Healthchecks)
 	errs := make(chan error, 2)

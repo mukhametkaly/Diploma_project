@@ -67,7 +67,7 @@ func main() {
 		if err != nil {
 			panic(fmt.Errorf("Fatal error connect Rabbit: %s \n", err))
 		}
-		if err := (*srv).Endpoint("request.auth.#", func(message amqp.Message) *amqp.Message {
+		if err := (*srv).Endpoint("request.auth.get.user", func(message amqp.Message) *amqp.Message {
 			return auth.MakeAuthServiceRabbitMQ(authService, message)
 		}); err != nil {
 			fmt.Println("err = ", err)

@@ -60,6 +60,7 @@ type ShortWaybillDTO struct {
 	CreatedOn      time.Time
 	UpdatedOn      time.Time
 	ProvidedTime   time.Time
+	Employee       string `json:"employee"`
 	Status         string
 }
 
@@ -72,6 +73,7 @@ func (d *ShortWaybillDTO) fromDTO() models.ShortWaybill {
 	waybill.CreatedOn = d.CreatedOn
 	waybill.UpdatedOn = d.UpdatedOn
 	waybill.ProvidedTime = d.ProvidedTime
+	waybill.Employee = d.Employee
 	waybill.Status = d.Status
 	return waybill
 }
@@ -84,6 +86,7 @@ func (d *ShortWaybillDTO) toDTO(waybill models.ShortWaybill) {
 	d.CreatedOn = waybill.CreatedOn
 	d.UpdatedOn = waybill.UpdatedOn
 	d.ProvidedTime = waybill.ProvidedTime
+	d.Employee = waybill.Employee
 	d.Status = waybill.Status
 }
 
@@ -221,7 +224,11 @@ func GetWaybill(ctx context.Context, req WaybillsFilterRequest) ([]models.ShortW
 		query.Where("document_number = ?", req.DocumentNumber)
 	}
 
-	err = query.Select()
+	if req.Size == 0 {
+		req.Size = 10
+	}
+
+	err = query.Limit(req.Size).Offset(req.From).Select()
 	if err != nil {
 		Loger.Debugln("error select in get list waybills", err.Error())
 		return nil, err

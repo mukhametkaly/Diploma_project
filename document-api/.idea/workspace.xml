@@ -5,24 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="96424c6d-18e2-4605-8f7f-45486bcd905d" name="Changes" comment="update dockerfile">
+      <change beforePath="$PROJECT_DIR$/../auth-api/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-api/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/category_service.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/endpoint.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/catalog/endpoint.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/logging.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/catalog/logging.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/catalog/posgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/product_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/catalog/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/catalog/transport.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/catalog/transport.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/migration/category.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/migration/category.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../product-api/src/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/../product-api/src/models/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/migration/shopping_cart.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/migration/shopping_cart.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/src/merchant/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/src/merchant/posgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/src/merchant/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/src/merchant/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/src/models/UserModel.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/src/models/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/src/shopping_cart/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/src/shopping_cart/posgres.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../store-api/src/shopping_cart/transport.go" beforeDir="false" afterPath="$PROJECT_DIR$/../store-api/src/shopping_cart/transport.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/endpont.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/endpont.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/posgres.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migration/products.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/migration/products.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/documents.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/documents.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/endpont.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/endpont.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/waybill/posgres.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/waybill/posgres.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +117,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/src/waybill/posgres.go</url>
-          <line>281</line>
+          <line>288</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>

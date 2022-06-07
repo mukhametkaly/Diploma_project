@@ -15,6 +15,7 @@ type ShortInventory struct {
 	CreatedOn      time.Time `json:"created_on"`
 	UpdatedOn      time.Time `json:"updated_on"`
 	ProvidedTime   time.Time `json:"provided_time"`
+	Employee       string    `json:"employee"`
 	Status         string    `json:"status"`
 }
 
@@ -27,6 +28,7 @@ type ShortWaybill struct {
 	CreatedOn      time.Time `json:"created_on"`
 	UpdatedOn      time.Time `json:"updated_on"`
 	ProvidedTime   time.Time `json:"provided_time"`
+	Employee       string    `json:"employee"`
 	Status         string    `json:"status"`
 }
 

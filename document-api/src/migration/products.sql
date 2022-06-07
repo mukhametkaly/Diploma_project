@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS short_inventory (
                                                created_on timestamp NOT NULL,
                                                updated_on timestamp NOT NULL,
                                                provided_time timestamp ,
+                                               employee varchar,
                                                status      varchar
+
 );
 ALTER TABLE IF EXISTS short_inventory OWNER TO postgres;
 
@@ -20,6 +22,7 @@ CREATE TABLE IF NOT EXISTS short_waybill (
                                              created_on timestamp NOT NULL,
                                              updated_on timestamp NOT NULL,
                                              provided_time timestamp ,
+                                             employee varchar,
                                              status      varchar
 );
 ALTER TABLE IF EXISTS short_waybill OWNER TO postgres;

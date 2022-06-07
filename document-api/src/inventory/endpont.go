@@ -133,6 +133,8 @@ type InventorysFilterRequest struct {
 	MerchantId     string `json:"merchant_id"`
 	Status         string `json:"status"`
 	DocumentNumber string `json:"document_number"`
+	From           int    `json:"from"`
+	Size           int    `json:"size"`
 }
 
 type GetInventoryRequest struct {

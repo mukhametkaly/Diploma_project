@@ -60,6 +60,7 @@ type ShortInventoryDTO struct {
 	CreatedOn      time.Time
 	UpdatedOn      time.Time
 	ProvidedTime   time.Time
+	Employee       string `json:"employee"`
 	Status         string
 }
 
@@ -72,6 +73,7 @@ func (d *ShortInventoryDTO) fromDTO() models.ShortInventory {
 	inventory.CreatedOn = d.CreatedOn
 	inventory.UpdatedOn = d.UpdatedOn
 	inventory.ProvidedTime = d.ProvidedTime
+	inventory.Employee = d.Employee
 	inventory.Status = d.Status
 	return inventory
 }
@@ -84,6 +86,7 @@ func (d *ShortInventoryDTO) toDTO(inventory models.ShortInventory) {
 	d.CreatedOn = inventory.CreatedOn
 	d.UpdatedOn = inventory.UpdatedOn
 	d.ProvidedTime = inventory.ProvidedTime
+	d.Employee = inventory.Employee
 	d.Status = inventory.Status
 }
 
@@ -221,7 +224,11 @@ func GetInventory(ctx context.Context, req InventorysFilterRequest) ([]models.Sh
 		query.Where("document_number = ?", req.DocumentNumber)
 	}
 
-	err = query.Select()
+	if req.Size == 0 {
+		req.Size = 10
+	}
+
+	err = query.Limit(req.Size).Offset(req.From).Select()
 	if err != nil {
 		Loger.Debugln("error select in get list inventories", err.Error())
 		return nil, err

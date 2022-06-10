@@ -20,7 +20,7 @@ type Product struct {
 type Category struct {
 	ID            int64  `json:"id"`
 	MerchantId    string `json:"merchant_id"`
-	ProductsCount int64  `json:"products_count"`
+	ProductsCount int    `json:"products_count"`
 	CategoryName  string `json:"category_name"`
 	Description   string
 	CreatedOn     time.Time

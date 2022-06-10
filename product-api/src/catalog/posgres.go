@@ -416,6 +416,16 @@ func CheckCategoryExists(ctx context.Context, merchantId, categoryName string) (
 
 }
 
+func ProductsCount(categoryName, merchantId string) (int, error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		return 0, err
+	}
+
+	return conn.Model((*ProductDTO)(nil)).Where("merchant_id = ?", merchantId).Where("category_name = ?", categoryName).Count()
+
+}
+
 func UpdateProductsCount(ctx context.Context, req UpdateProductsCountRequest) error {
 	conn, err := GetPGSession()
 	if err != nil {

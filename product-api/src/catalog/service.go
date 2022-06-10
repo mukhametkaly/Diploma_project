@@ -247,6 +247,11 @@ func (s *service) GetCategoryById(id int64) (models.Category, error) {
 	if err != nil {
 		return category, InternalServerError
 	}
+	category.ProductsCount, err = ProductsCount(category.CategoryName, category.MerchantId)
+	if err != nil {
+		return category, InternalServerError
+	}
+
 	return category, nil
 }
 
@@ -258,6 +263,10 @@ func (s *service) FilterCategories(request FilterCategoryRequest) ([]models.Cate
 	categories, err := FilterCategories(context.Background(), request)
 	if err != nil {
 		return nil, Conflict
+	}
+
+	for i := range categories {
+		categories[i].ProductsCount, err = ProductsCount(categories[i].CategoryName, categories[i].MerchantId)
 	}
 
 	return categories, nil

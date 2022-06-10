@@ -83,3 +83,24 @@ type FilterMerchantsRequest struct {
 	From int    `json:"from"`
 	Size int    `json:"size"`
 }
+
+func makeGetStatisticResponseEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(string)
+		resp, err := s.GetStatistic(req)
+		if err != nil {
+			Loger.Println(err)
+			return nil, err
+		}
+		return resp, nil
+	}
+}
+
+type GetStatisticResponse struct {
+	TotalSellingSum          float64
+	TotalSellingCount        int
+	AllProductsPurchasePrice float64
+	AllProductsSellingPrice  float64
+	Profit                   float64
+	Loss                     float64
+}

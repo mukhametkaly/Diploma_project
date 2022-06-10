@@ -59,6 +59,13 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	getStatistic := kithttp.NewServer(
+		makeGetStatisticResponseEndpoint(ss),
+		decodeGetStatisticResponseSync,
+		encodeResponse,
+		opts...,
+	)
+
 	r := mux.NewRouter()
 	r.Handle("/v1/merchant/create", createMerchant).Methods("POST")
 	r.Handle("/v1/merchant/{id}", getMerchant).Methods("GET")
@@ -66,6 +73,7 @@ func MakeHandler(ss Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/v1/merchant/{id}", deleteMerchant).Methods("DELETE")
 	r.Handle("/v1/merchant/delete/batch", deleteMMerchant).Methods("POST")
 	r.Handle("/v1/merchant/filter", filterMerchants).Methods("POST")
+	r.Handle("/v1/merchant/statistic/{merchantId}", getStatistic).Methods("GET")
 
 	return r
 }
@@ -131,6 +139,16 @@ func decodeFilterMerchantSync(_ context.Context, r *http.Request) (interface{}, 
 		return nil, InvalidCharacter
 	}
 	return body, nil
+}
+
+func decodeGetStatisticResponseSync(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	strId, ok := vars["merchantId"]
+	if !ok {
+		return nil, InvalidCharacter
+	}
+
+	return strId, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

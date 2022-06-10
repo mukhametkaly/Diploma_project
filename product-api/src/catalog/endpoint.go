@@ -163,3 +163,14 @@ type FilterCategoryRequest struct {
 	From       int    `json:"from"`
 	Size       int    `json:"size"`
 }
+
+type UpdateProductsCountRequest struct {
+	MerchantId string       `json:"merchant_id"`
+	Action     string       `json:"action"`
+	Nomens     []ShortNomen `json:"nomens"`
+}
+
+type ShortNomen struct {
+	Barcode string
+	Amount  float64
+}

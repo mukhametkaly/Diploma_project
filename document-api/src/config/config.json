@@ -6,5 +6,13 @@
     "port": "5432",
     "dbname": "postgres"
   },
+  "rabbit": {
+    "host": "34.216.151.246",
+    "virtual_host": "",
+    "port": 5672,
+    "user": "guest",
+    "password": "guest",
+    "log_level": 5
+  },
   "logrus_level":5
 }

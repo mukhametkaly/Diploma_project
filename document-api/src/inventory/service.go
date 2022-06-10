@@ -89,6 +89,17 @@ func (ws inventoryService) UpdateInventory(inventory models.ShortInventory) (mod
 			if err != nil {
 				return models.ShortInventory{}, newError(http.StatusInternalServerError, err)
 			}
+
+			products, err := GetInventoryProducts(context.Background(), GetInventoryProductsRequest{InventoryId: inventory.ID})
+			if err != nil {
+				return models.ShortInventory{}, newError(http.StatusInternalServerError, err)
+			}
+
+			err = SendProductsToUpdateCount(products, oldInventory.MerchantId)
+			if err != nil {
+				return models.ShortInventory{}, newError(http.StatusInternalServerError, err)
+			}
+
 		}
 	}
 

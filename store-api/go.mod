@@ -3,10 +3,12 @@ module github.com/mukhametkaly/Diploma/store-api
 go 1.17
 
 require (
+	github.com/djumanoff/amqp v1.0.6
 	github.com/go-kit/kit v0.9.0
 	github.com/go-pg/pg/v10 v10.10.5
 	github.com/gorilla/mux v1.7.3
 	github.com/sirupsen/logrus v1.5.0
+	github.com/sony/sonyflake v1.0.0
 )
 
 require (
@@ -16,6 +18,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
+	github.com/streadway/amqp v0.0.0-20180806233856-70e15c650864 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/bufpool v0.1.11 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.1 // indirect

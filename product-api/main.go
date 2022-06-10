@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/djumanoff/amqp"
 	"github.com/mukhametkaly/Diploma/product-api/src/catalog"
 	"github.com/mukhametkaly/Diploma/product-api/src/config"
 	"net/http"
@@ -51,6 +52,43 @@ func main() {
 	http.Handle("/v1/product/", accessControl(mux))
 	http.HandleFunc("/v1/check", config.Healthchecks)
 	errs := make(chan error, 2)
+
+	var consumerCfg amqp.ConsumerConfig
+	consumerCfg.PrefetchCount = 100
+
+	sessionrabbit, err := catalog.GetRabbitSession()
+	if err != nil {
+		level.Error(logger).Log("Error creating session to rabbit:", fmt.Sprintf("%v", err))
+		return
+	}
+
+	serverRabbit, err := (*sessionrabbit).Consumer(consumerCfg)
+	if err != nil {
+		level.Error(logger).Log("Error creating consumer to rabbit:", fmt.Sprintf("%v", err))
+		return
+	}
+
+	if err := serverRabbit.Queue(amqp.Queue{
+		Name:    "event.catalog",
+		Durable: true,
+		AutoAck: false,
+		NoWait:  true,
+		Args:    nil,
+		Bindings: []amqp.QueueBinding{
+			{
+				RoutingKey: "event.catalog.update.nomenclatures",
+				Exchange:   "X:routing.topic",
+				NoWait:     true,
+				Args:       nil,
+				Handler: func(message amqp.Message) *amqp.Message {
+					return catalog.UpdateOrderAndDeliveryStatusEvent(message, service)
+				},
+			},
+		},
+	}); err != nil {
+		panic("err in queue (name = FileUploaderEvent)")
+	}
+
 	go func() {
 		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening catalog-api V1.0.0")
 		errs <- http.ListenAndServe(*httpAddr, nil)

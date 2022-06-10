@@ -18,10 +18,16 @@ type Service interface {
 	DeleteBatchMerchant(ids []string) error
 	GetMerchantById(id string) (models.Merchant, error)
 	FilterMerchants(request FilterMerchantsRequest) ([]models.Merchant, error)
+
+	GetStatistic(merchantId string) (GetStatisticResponse, error)
 }
 
 func NewService() Service {
 	return &service{}
+}
+
+func (s *service) GetStatistic(merchantId string) (GetStatisticResponse, error) {
+	return GetStatistic(merchantId)
 }
 
 func (s *service) CreateMerchant(request models.Merchant) (models.Merchant, error) {

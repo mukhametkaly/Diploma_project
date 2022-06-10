@@ -181,3 +181,58 @@ func CheckId(ctx context.Context, merchantId, barcode string) (bool, error) {
 	return conn.ModelContext(ctx, &merchant).Where("merchant_id = ?", merchantId).Where("barcode = ?", barcode).Exists()
 
 }
+
+func GetStatistic(merchantId string) (GetStatisticResponse, error) {
+	conn, err := GetPGSession()
+	if err != nil {
+		return GetStatisticResponse{}, err
+	}
+
+	resp := GetStatisticResponse{}
+
+	resp.TotalSellingCount, err = conn.
+		Model((*models.ShoppingCart)(nil)).
+		Where("merchant_id = ?", merchantId).
+		ColumnExpr("sum(total_sum)").
+		SelectAndCount(&resp.TotalSellingSum)
+	if err != nil {
+		return GetStatisticResponse{}, err
+	}
+
+	type Product struct{}
+
+	err = conn.
+		Model((*Product)(nil)).
+		Where("merchant_id = ?", merchantId).
+		ColumnExpr("sum(purchase_price)").
+		Select(&resp.AllProductsPurchasePrice)
+	if err != nil {
+		return GetStatisticResponse{}, err
+	}
+
+	err = conn.
+		Model((*Product)(nil)).
+		Where("merchant_id = ?", merchantId).
+		ColumnExpr("sum(selling_price)").
+		Select(&resp.AllProductsSellingPrice)
+	if err != nil {
+		return GetStatisticResponse{}, err
+	}
+
+	type Waybill struct {
+		tableName struct{} `pg:"short_waybill"`
+	}
+	err = conn.
+		Model((*Waybill)(nil)).
+		Where("merchant_id = ?", merchantId).
+		ColumnExpr("sum(total_sum)").
+		Select(&resp.Loss)
+	if err != nil {
+		return GetStatisticResponse{}, err
+	}
+
+	resp.Profit = resp.TotalSellingSum
+
+	return resp, nil
+
+}

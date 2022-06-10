@@ -74,6 +74,17 @@ func (ws shoppingCartService) UpdateShoppingCart(shoppingCart models.ShoppingCar
 			if err != nil {
 				return models.ShoppingCart{}, newError(http.StatusInternalServerError, err)
 			}
+
+			products, err := GetShoppingCartProducts(context.Background(), GetShoppingCartProductsRequest{ShoppingCartId: shoppingCart.ID})
+			if err != nil {
+				return models.ShoppingCart{}, newError(http.StatusInternalServerError, err)
+			}
+
+			err = SendProductsToUpdateCount(products, oldShoppingCart.MerchantId)
+			if err != nil {
+				return models.ShoppingCart{}, newError(http.StatusInternalServerError, err)
+			}
+
 		}
 	}
 

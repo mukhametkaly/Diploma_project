@@ -89,6 +89,16 @@ func (ws waybillService) UpdateWaybill(waybill models.ShortWaybill) (models.Shor
 			if err != nil {
 				return models.ShortWaybill{}, newError(http.StatusInternalServerError, err)
 			}
+
+			products, err := GetWaybillProducts(context.Background(), GetWaybillProductsRequest{WaybillId: waybill.ID})
+			if err != nil {
+				return models.ShortWaybill{}, newError(http.StatusInternalServerError, err)
+			}
+
+			err = SendProductsToUpdateCount(products, oldWaybill.MerchantId)
+			if err != nil {
+				return models.ShortWaybill{}, newError(http.StatusInternalServerError, err)
+			}
 		}
 	}
 

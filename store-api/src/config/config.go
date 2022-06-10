@@ -9,9 +9,8 @@ import (
 
 type Configs struct {
 	LogrusLevel uint8          `json:"logrus_level"`
-	Postgres    PostgresConfig `json:"postgres"`
 	Rabbit      RabbitConfig   `json:"rabbit"`
-	SignKey     string         `json:"sign_key"`
+	Postgres    PostgresConfig `json:"postgres"`
 }
 
 type PostgresConfig struct {
@@ -27,8 +26,8 @@ type RabbitConfig struct {
 	VirtualHost string `json:"virtual_host"`
 	Port        int    `json:"port"`
 	User        string `json:"user"`
-	Password    string `json:"password"`
 	LogLevel    uint8  `json:"log_level"`
+	Password    string `json:"password"`
 }
 
 var AllConfigs *Configs

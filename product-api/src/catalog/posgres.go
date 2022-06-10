@@ -415,3 +415,36 @@ func CheckCategoryExists(ctx context.Context, merchantId, categoryName string) (
 	return conn.ModelContext(ctx, &categoryDtos).Where("merchant_id = ?", merchantId).Where("category_name = ?", categoryName).Exists()
 
 }
+
+func UpdateProductsCount(ctx context.Context, req UpdateProductsCountRequest) error {
+	conn, err := GetPGSession()
+	if err != nil {
+		return err
+	}
+
+	for i := range req.Nomens {
+		var query *pg.Query
+
+		product := ProductDTO{
+			Barcode:    req.Nomens[i].Barcode,
+			MerchantId: req.MerchantId,
+			Amount:     req.Nomens[i].Amount,
+		}
+
+		switch req.Action {
+		case "INC":
+			query = conn.ModelContext(ctx, &product).Set("amount = amount + ?", req.Nomens[i].Amount)
+		case "DEC":
+			query = conn.ModelContext(ctx, &product).Set("amount = amount - ?", req.Nomens[i].Amount)
+		case "UPD":
+			query = conn.ModelContext(ctx, &product).Set("amount = ?", req.Nomens[i].Amount)
+		}
+
+		_, err = query.Where("merchant_id = ?", req.MerchantId).Where("barcode = ?", product.Barcode).Update()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

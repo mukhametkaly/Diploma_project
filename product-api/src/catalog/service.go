@@ -17,6 +17,7 @@ type Service interface {
 	DeleteBatchProduct(ids []int64) error
 	GetProductById(id int64) (models.Product, error)
 	FilterProducts(request FilterProductsRequest) ([]models.Product, error)
+	UpdateProductsCount(req UpdateProductsCountRequest) error
 
 	CreateCategory(request models.Category) (models.Category, error)
 	UpdateCategory(request models.Category) (models.Category, error)
@@ -28,6 +29,10 @@ type Service interface {
 
 func NewService() Service {
 	return &service{}
+}
+
+func (s *service) UpdateProductsCount(req UpdateProductsCountRequest) error {
+	return UpdateProductsCount(context.Background(), req)
 }
 
 func (s *service) CreateProduct(request models.Product) (models.Product, error) {
